@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>태어난 날을 알려주세요</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script>
+        function submitForm() {
+            const form = document.getElementById("date-form");
+            const formData = new FormData(form);
+
+            fetch("/calculate", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("result").innerHTML = data;
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>태어난 날을 알려주세요</h1>
+        <form id="date-form" onsubmit="event.preventDefault(); submitForm();">
+            <label for="year">출생년도:</label>
+            <select name="year" id="year">
+                {% for year in range(2024, 1930,-1) %}
+                <option value="{{ year }}">{{ year }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="month">월(Month):</label>
+            <select name="month" id="month">
+                {% for month in range(1, 13) %}
+                <option value="{{ month }}">{{ month }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="day">일(Day):</label>
+            <select name="day" id="day">
+                {% for day in range(1, 32) %}
+                <option value="{{ day }}">{{ day }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="hour">시간(Time):</label>
+            <select name="hour" id="hour">
+                <option value="3-5">시간은 잘몰라요...</option>
+                <option value="23-1">23시 - 1시 (子時)</option>
+                <option value="1-3">1시 - 3시 (丑時)</option>
+                <option value="3-5">3시 - 5시 (寅時)</option>
+                <option value="5-7">5시 - 7시 (卯時)</option>
+                <option value="7-9">7시 - 9시 (辰時)</option>
+                <option value="9-11">9시 - 11시 (巳時)</option>
+                <option value="11-13">11시 - 13시 (午時)</option>
+                <option value="13-15">13시 - 15시 (未時)</option>
+                <option value="15-17">15시 - 17시 (申時)</option>
+                <option value="17-19">17시 - 19시 (酉時)</option>
+                <option value="19-21">19시 - 21시 (戌時)</option>
+                <option value="21-23">21시 - 23시 (亥時)</option>
+            </select>
+
+            <button type="submit">제출</button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+</body>
+</html>
