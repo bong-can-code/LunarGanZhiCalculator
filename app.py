@@ -1,33 +1,47 @@
-from flask import Flask, render_template, request
-from datetime import datetime
-from lunardate import LunarDate
+from flask import Flask, jsonify, render_template, request
+
+from saju import calculate_saju
 
 app = Flask(__name__)
 
-# 천간과 지지 리스트
-heavenly_stems = ['갑', '을', '병', '정', '무', '기', '경', '신', '임', '계']
-earthly_branches = ['자', '축', '인', '묘', '진', '사', '오', '미', '신', '유', '술', '해']
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
+
 @app.route('/calculate', methods=['POST'])
 def calculate():
-    year = int(request.form['year'])
-    
-    month = int(request.form['month'])
-    
-    day = int(request.form['day'])
+    try:
+        year = int(request.form['year'])
+        month = int(request.form['month'])
+        day = int(request.form['day'])
+    except (KeyError, ValueError):
+        return jsonify({'error': '생년월일을 올바르게 입력해 주세요.'}), 400
 
-    # 시간 값 처리: "13-15" 같은 범위를 받았을 때 첫 번째 시간만 사용
-    hour_range = request.form['hour']
-    # "13-15" 형식에서 첫 번째 시간을 추출
-    hour = int(hour_range.split('-')[0])
+    is_lunar = request.form.get('calendarType') == 'lunar'
+    is_leap_month = request.form.get('leapMonth') == 'true'
 
-    lunar_date = LunarDate.fromSolarDate(year, month, day)
-    result = f"음력 날짜: {lunar_date.year}년 {lunar_date.month}월 {lunar_date.day}일"
-    return result
+    # 시간: "13-15" 범위의 시작 시각 사용. "unknown"이면 시주 생략.
+    hour_range = request.form.get('hour', 'unknown')
+    if hour_range == 'unknown':
+        hour = None
+    else:
+        try:
+            hour = int(hour_range.split('-')[0])
+        except ValueError:
+            hour = None
+
+    try:
+        result = calculate_saju(
+            year, month, day, hour,
+            is_lunar=is_lunar, is_leap_month=is_leap_month,
+        )
+    except ValueError as exc:
+        return jsonify({'error': str(exc)}), 400
+
+    return jsonify(result)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
