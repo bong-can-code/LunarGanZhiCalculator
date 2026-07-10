@@ -1,0 +1,256 @@
+/* ── 궁합 페이지 전용 스타일 ───────────────────────────────── */
+
+.nav-link {
+    margin: 0 0 10px;
+}
+
+.nav-link a {
+    color: #0071e3;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.person-grid {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.person-card {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid #e4e4e8;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 0;
+}
+
+.person-card legend {
+    font-weight: 600;
+    padding: 0 6px;
+}
+
+.radio-row {
+    margin: 8px 0;
+}
+
+@media (max-width: 640px) {
+    .person-grid {
+        flex-direction: column;
+    }
+}
+
+/* ── 결과: 커플 씬 ── */
+.couple-scene {
+    max-width: 480px;
+    margin: 20px auto 0;
+}
+
+.couple-scene svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.couple-names {
+    font-size: 15px;
+    color: #5f6368;
+    margin-top: 8px;
+}
+
+/* ── 결과: 점수 ── */
+.score-wrap {
+    margin-top: 18px;
+}
+
+.score-circle {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: conic-gradient(#ff5f8f calc(var(--score) * 1%), #ffe3ec 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.score-circle .inner {
+    width: 94px;
+    height: 94px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.score-number {
+    font-size: 34px;
+    font-weight: 700;
+    color: #ff5f8f;
+    line-height: 1;
+}
+
+.score-unit {
+    font-size: 12px;
+    color: #86868b;
+}
+
+.score-grade {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1d1d1f;
+    margin-top: 10px;
+}
+
+/* ── 결과: 궁합 요인 ── */
+.factor-list {
+    text-align: left;
+    margin-top: 12px;
+    padding: 0;
+    list-style: none;
+}
+
+.factor-list li {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.factor-delta {
+    flex: 0 0 auto;
+    font-weight: 700;
+    min-width: 38px;
+    text-align: center;
+    border-radius: 6px;
+    padding: 2px 6px;
+}
+
+.factor-delta.plus { background: #e8f5e9; color: #2e7d32; }
+.factor-delta.minus { background: #fdecea; color: #c62828; }
+
+.factor-label { font-weight: 600; }
+.factor-desc { color: #5f6368; }
+
+/* ── 결과: 지역 추천 ── */
+.district-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.district-chip {
+    width: auto;
+    background: #fff;
+    color: #333;
+    border: 1.5px solid #d1d1d6;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.district-chip:hover { background: #f5f5f7; }
+
+.district-chip.active {
+    background: #ff5f8f;
+    border-color: #ff5f8f;
+    color: #fff;
+}
+
+/* ── 결과: 장소 리스트 ── */
+.places-grid {
+    display: flex;
+    gap: 14px;
+    margin-top: 14px;
+    text-align: left;
+}
+
+.places-col { flex: 1; min-width: 0; }
+
+.places-col h4 {
+    margin: 0 0 8px;
+    font-size: 15px;
+}
+
+.place-item {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.place-item .name { font-weight: 600; font-size: 14px; }
+.place-item .meta { color: #86868b; margin-top: 2px; }
+.place-item a { color: #0071e3; text-decoration: none; }
+
+.sample-notice {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #795548;
+    margin-top: 12px;
+}
+
+.spot-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+    text-align: left;
+}
+
+.spot-list li {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+@media (max-width: 640px) {
+    .places-grid { flex-direction: column; }
+}
+
+/* ── 공유 버튼 ── */
+.share-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.share-buttons button {
+    flex: 1;
+}
+
+button.secondary {
+    background: #fff;
+    color: #ff5f8f;
+    border: 2px solid #ff5f8f;
+}
+
+button.secondary:hover { background: #fff0f5; }
+
+button.insta {
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+
+button.insta:hover { filter: brightness(0.95); background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+
+.share-toast {
+    font-size: 13px;
+    color: #5f6368;
+    margin-top: 10px;
+}
+
+#share-canvas { display: none; }

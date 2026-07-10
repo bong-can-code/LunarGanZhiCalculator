@@ -16,22 +16,15 @@ from datetime import datetime, timedelta
 
 from korean_lunar_calendar import KoreanLunarCalendar
 
+from .gapja import (
+    BRANCHES_HANJA,
+    EARTHLY_BRANCHES,
+    HEAVENLY_STEMS,
+    STEMS_HANJA,
+    gapja_index as _gapja_index,
+    pillar as _pillar,
+)
 from .solar_terms import MONTH_TERMS, solar_term_datetime
-
-HEAVENLY_STEMS = ["갑", "을", "병", "정", "무", "기", "경", "신", "임", "계"]
-EARTHLY_BRANCHES = ["자", "축", "인", "묘", "진", "사", "오", "미", "신", "유", "술", "해"]
-
-STEMS_HANJA = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
-BRANCHES_HANJA = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
-
-
-def _pillar(stem_idx: int, branch_idx: int) -> dict:
-    return {
-        "stem": HEAVENLY_STEMS[stem_idx % 10],
-        "branch": EARTHLY_BRANCHES[branch_idx % 12],
-        "hanja": STEMS_HANJA[stem_idx % 10] + BRANCHES_HANJA[branch_idx % 12],
-        "korean": HEAVENLY_STEMS[stem_idx % 10] + EARTHLY_BRANCHES[branch_idx % 12],
-    }
 
 
 def _saju_year(dt: datetime) -> int:
@@ -92,11 +85,7 @@ def _day_gapja_index(date_ymd) -> int:
     day = gapja[2]  # '갑자일'
     stem = HEAVENLY_STEMS.index(day[0])
     branch = EARTHLY_BRANCHES.index(day[1])
-    # (stem, branch) → 60갑자 인덱스
-    for i in range(60):
-        if i % 10 == stem and i % 12 == branch:
-            return i
-    raise ValueError("일간지 인덱스 산출 실패")
+    return _gapja_index(stem, branch)
 
 
 def day_pillar(dt: datetime, use_jeongjasi: bool = True) -> tuple[dict, int]:

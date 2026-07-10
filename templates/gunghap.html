@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>커플 궁합 &amp; 데이트 지역 추천</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/gunghap.css') }}">
+    <script src="{{ url_for('static', filename='js/zodiac.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/gunghap.js') }}" defer></script>
+</head>
+<body>
+    <div class="container">
+        <p class="nav-link"><a href="/">&larr; 사주 계산기로</a></p>
+        <h1>우리 궁합은 몇 점일까? 💕</h1>
+
+        <form id="gunghap-form">
+            <div class="person-grid">
+                {% for p in [('p1', '💙 첫 번째 사람'), ('p2', '❤️ 두 번째 사람')] %}
+                {% set prefix = p[0] %}
+                <fieldset class="person-card">
+                    <legend>{{ p[1] }}</legend>
+
+                    <label for="{{ prefix }}_name">이름 (선택)</label>
+                    <input type="text" id="{{ prefix }}_name" name="{{ prefix }}_name"
+                           maxlength="10" placeholder="결과 이미지에 표시돼요">
+
+                    <div class="radio-row">
+                        <label class="inline">
+                            <input type="radio" name="{{ prefix }}_gender" value="male" checked> 남자
+                        </label>
+                        <label class="inline">
+                            <input type="radio" name="{{ prefix }}_gender" value="female"> 여자
+                        </label>
+                    </div>
+
+                    <div class="radio-row">
+                        <label class="inline">
+                            <input type="radio" name="{{ prefix }}_calendarType" value="solar" checked> 양력
+                        </label>
+                        <label class="inline">
+                            <input type="radio" name="{{ prefix }}_calendarType" value="lunar"> 음력
+                        </label>
+                        <label class="inline leap-wrap" data-prefix="{{ prefix }}" style="display:none;">
+                            <input type="checkbox" name="{{ prefix }}_leapMonth" value="true"> 윤달
+                        </label>
+                    </div>
+
+                    <label for="{{ prefix }}_year">출생년도</label>
+                    <select name="{{ prefix }}_year" id="{{ prefix }}_year">
+                        {% for year in range(2026, 1900, -1) %}
+                        <option value="{{ year }}" {% if year == 1995 %}selected{% endif %}>{{ year }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="{{ prefix }}_month">월</label>
+                    <select name="{{ prefix }}_month" id="{{ prefix }}_month">
+                        {% for month in range(1, 13) %}
+                        <option value="{{ month }}">{{ month }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="{{ prefix }}_day">일</label>
+                    <select name="{{ prefix }}_day" id="{{ prefix }}_day">
+                        {% for day in range(1, 32) %}
+                        <option value="{{ day }}">{{ day }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="{{ prefix }}_hour">시간</label>
+                    <select name="{{ prefix }}_hour" id="{{ prefix }}_hour">
+                        <option value="unknown">시간은 잘몰라요...</option>
+                        <option value="23-1">23시 - 1시 (子時)</option>
+                        <option value="1-3">1시 - 3시 (丑時)</option>
+                        <option value="3-5">3시 - 5시 (寅時)</option>
+                        <option value="5-7">5시 - 7시 (卯時)</option>
+                        <option value="7-9">7시 - 9시 (辰時)</option>
+                        <option value="9-11">9시 - 11시 (巳時)</option>
+                        <option value="11-13">11시 - 13시 (午時)</option>
+                        <option value="13-15">13시 - 15시 (未時)</option>
+                        <option value="15-17">15시 - 17시 (申時)</option>
+                        <option value="17-19">17시 - 19시 (酉時)</option>
+                        <option value="19-21">19시 - 21시 (戌時)</option>
+                        <option value="21-23">21시 - 23시 (亥時)</option>
+                    </select>
+                </fieldset>
+                {% endfor %}
+            </div>
+
+            <button type="submit">궁합 보기 💘</button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+</body>
+</html>
