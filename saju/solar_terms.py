@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import math
 from datetime import datetime, timedelta
+from functools import lru_cache
 
 KST_OFFSET_HOURS = 9
 
@@ -87,10 +88,14 @@ def _solar_longitude_at_kst(dt_kst: datetime) -> float:
     return _apparent_solar_longitude(jde)
 
 
+@lru_cache(maxsize=None)
 def solar_term_datetime(year: int, target_longitude: float) -> datetime:
     """지정 연도에 태양황경이 target_longitude(도)에 드는 절입시각(KST).
 
     이분법으로 순간을 찾는다. 절기가 걸치는 대략적 월을 초기 구간으로 잡는다.
+
+    (year, target_longitude)가 같으면 결과가 항상 같은 순수 함수라 캐싱한다.
+    연주/월주/대운 계산이 같은 절기를 반복 조회하므로 요청당 계산량이 크게 줄어든다.
     """
     # 황경 → 대략적 양력 월 (춘분 0˚≈3월). 검색 구간을 넉넉히 잡는다.
     approx_month = int(((target_longitude / 30.0) + 1) % 12) + 1

@@ -1,6 +1,6 @@
 """커플 궁합(합·충·오행 보완) 계산.
 
-점수 규칙은 DESIGN_GUNGHAP.md 4장 참고. 기본 50점에서 요인별로 가감해 0~100으로 클램프한다.
+점수 규칙은 plan/done/DESIGN_GUNGHAP.md 4장 참고. 기본 50점에서 요인별로 가감해 0~100으로 클램프한다.
 """
 
 from __future__ import annotations

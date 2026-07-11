@@ -17,7 +17,7 @@
 ### 💕 커플 궁합 & 데이트 지역 추천 (`/gunghap`)
 
 - **궁합 점수(0~100)**: 일간 천간합, 일지·띠의 육합/삼합/충/원진, 오행 상호보완을 점수화합니다
-  (규칙 상세: [DESIGN_GUNGHAP.md](DESIGN_GUNGHAP.md), 구현: [saju/compat.py](saju/compat.py)).
+  (규칙 상세: [plan/done/DESIGN_GUNGHAP.md](plan/done/DESIGN_GUNGHAP.md), 구현: [saju/compat.py](saju/compat.py)).
 - **십이간지 커플 캐릭터**: 두 사람의 띠(사주 연지 기준) 동물을 귀여운 SVG 캐릭터로 그려
   하트와 함께 보여줍니다 ([static/js/zodiac.js](static/js/zodiac.js)).
 - **데이트 지역 추천**: 두 사람에게 부족한 오행 → 오행 방위(목=동/화=남/토=중앙/금=서/수=북) →
