@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>커플 궁합 &amp; 데이트 지역 추천</title>
+    {% set meta_title = "십이간지 커플 궁합 💕" %}
+    {% set meta_description = "생일로 보는 우리 궁합과 데이트 지역 추천" %}
+    {% set meta_image = og_image_url('gunghap-og.png') %}
+    {% set meta_path = url_for('gunghap_page') %}
+    {% set favicon = "%F0%9F%92%95" %}
+    {% include "_meta.html" %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/gunghap.css') }}">
     <script src="{{ url_for('static', filename='js/zodiac.js') }}" defer></script>

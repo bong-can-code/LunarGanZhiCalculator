@@ -1,7 +1,7 @@
 import os
 
 import requests
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, url_for
 
 from saju import calculate_saju
 from saju.compat import couple_compat, zodiac_of
@@ -10,6 +10,23 @@ from saju.regions import DISTRICT_SPOTS, recommend_districts
 app = Flask(__name__)
 
 KAKAO_LOCAL_URL = 'https://dapi.kakao.com/v2/local/search/keyword.json'
+
+# OG/Twitter Card 등 절대 URL이 필요한 메타태그에 쓰는 배포 주소.
+# 커스텀 도메인으로 옮기면 Railway 환경변수 PUBLIC_BASE_URL만 바꾸면 된다.
+PUBLIC_BASE_URL = os.environ.get(
+    'PUBLIC_BASE_URL', 'https://lunar-ganzhi-calculator-production.up.railway.app'
+).rstrip('/')
+
+
+@app.context_processor
+def inject_public_urls():
+    def og_image_url(filename):
+        return f"{PUBLIC_BASE_URL}{url_for('static', filename=f'og/{filename}')}"
+
+    return {
+        'public_base_url': PUBLIC_BASE_URL,
+        'og_image_url': og_image_url,
+    }
 
 
 def _load_kakao_key():

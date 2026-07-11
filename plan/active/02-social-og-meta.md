@@ -14,30 +14,34 @@
 
 ## 작업 항목
 
-- [ ] 대표 OG 이미지(1200×630 권장) 1장 제작 — 십이간지 커플 캐릭터 + 서비스명. 기존 `zodiac.js` 캐릭터 재활용해 캔버스로 뽑거나 정적 PNG로 제작해 `static/og/` 에 저장
-- [ ] `templates/index.html`, `templates/gunghap.html` `<head>`에 추가:
-  - `og:title`, `og:description`, `og:image`(절대 URL), `og:url`, `og:type=website`, `og:locale=ko_KR`
-  - `twitter:card=summary_large_image`, `twitter:title`, `twitter:image`
+- [x] 대표 OG 이미지(1200×630) 2장 제작 — `static/og/home-og.png`(4주 타일+제목), `static/og/gunghap-og.png`(십이간지 커플 캐릭터+제목). Playwright로 정적 렌더링해 커밋.
+- [x] `templates/_meta.html` 공통 partial 생성 + `index.html`/`gunghap.html`에 include:
+  - `og:title`, `og:description`, `og:image`(절대 URL), `og:url`, `og:type=website`, `og:locale=ko_KR`, `og:site_name`
+  - `twitter:card=summary_large_image`, `twitter:title`, `twitter:description`, `twitter:image`
   - `<meta name="description">`, `<meta name="theme-color">`
-  - 모바일 웹앱 느낌: `apple-mobile-web-app-*`, `manifest.json`(선택)
-- [ ] 절대 URL 생성: 배포 도메인을 환경변수(`PUBLIC_BASE_URL`)로 두고 템플릿에서 조합 (하드코딩 금지 → 커스텀 도메인 이전 대비)
-- [ ] 파비콘/터치아이콘 추가(하트 or 캐릭터)
-- [ ] 공유 텍스트 문구 확정(제목/설명 카피)
+  - `apple-mobile-web-app-capable`, `apple-mobile-web-app-title` (manifest.json은 범위 밖으로 보류)
+- [x] 절대 URL 생성: `app.py`에 `PUBLIC_BASE_URL` 환경변수(기본값: 현재 Railway 프로덕션 주소) + `og_image_url()` 헬퍼를 `context_processor`로 전 템플릿에 주입
+- [x] 파비콘 추가 — data URI SVG 이모지(홈 🀄, 궁합 💕)로 이미지 파일 없이 구현
+- [x] 공유 텍스트 문구 확정 — 제안 문구 그대로 적용(아래 결과 참고)
 
-## 내가(사용자) 할 일
+## 내가(사용자) 할 일 — 답변 완료
 
-1. **최종 도메인 결정**: 지금 `lunar-ganzhi-calculator-production.up.railway.app`을 계속 쓸지, 커스텀 도메인(예: `우리궁합.com`)을 붙일지. OG `og:url`·`og:image` 절대경로에 영향.
-   - 커스텀 도메인 원하면: 도메인 구매 후 Railway 대시보드 → Settings → Domains에서 연결 (DNS CNAME 설정 필요).
-2. **공유 카피 확인**: 예) 제목 "십이간지 커플 궁합 💕", 설명 "생일로 보는 우리 궁합과 데이트 지역 추천" — 이 문구로 갈지 검토/수정.
-3. (선택) 대표 OG 이미지 시안 방향 피드백.
+1. **도메인**: 현재 Railway 주소(`lunar-ganzhi-calculator-production.up.railway.app`) 유지로 결정. `PUBLIC_BASE_URL` 환경변수로 되어 있어 나중에 커스텀 도메인으로 옮길 때 그 값만 바꾸면 됨(코드 수정 불필요).
+2. **공유 카피**: 제안 문구 그대로 채택.
+   - 홈: "사주 간지 계산기" / "생년월일시로 보는 나의 사주 · 대운 · 세운. 입춘·절기 기준 정통 명리 계산."
+   - 궁합: "십이간지 커플 궁합 💕" / "생일로 보는 우리 궁합과 데이트 지역 추천"
 
-## 검증 방법
+## 검증 방법 (완료)
 
-- 로컬에서 `<head>` 렌더 확인 + `curl`로 메타태그 출력 확인.
-- 배포 후 실제 링크로 검증:
-  - 카카오톡: 채팅방에 링크 붙여넣어 카드 확인 (카톡은 og 캐시가 강해 [카카오 디버거]로 갱신)
-  - 페이스북/트위터: 공식 디버거(Sharing Debugger / Card Validator)로 미리보기 확인
-- 모바일에서 "홈 화면에 추가" 시 아이콘·이름 확인.
+- 로컬에서 `curl`로 `/`, `/gunghap`의 `<head>` 메타태그 전수 출력 확인 — og/twitter/description/favicon 전부 정상, 절대 URL이 프로덕션 도메인으로 렌더됨.
+- Playwright로 두 페이지 콘솔 에러 0건, 스크린샷으로 시각 회귀 없음 확인.
+- 정적 이미지 `/static/og/*.png` 200 + `image/png` 응답 확인.
+- ⏳ **배포 후 실제 검증은 미완료** (아래 참고)
+
+## 리스크
+
+- 낮음. 정적 태그 추가라 기능 영향 없음.
+- 주의: 카카오톡은 OG를 강하게 캐싱 → 배포 후에도 옛 카드가 뜰 수 있음(카카오 디버거로 강제 갱신 필요, 배포 후 안내 예정).
 
 ## 리스크
 

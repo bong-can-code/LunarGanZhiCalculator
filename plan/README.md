@@ -13,7 +13,7 @@
 
 | # | 계획 | 우선순위 | 상태 | 사용자 액션 필요 |
 |---|------|----------|------|-------------------|
-| 02 | [소셜 공유 최적화(정적 OG)](active/02-social-og-meta.md) | 🔴 높음 | active | ⚠️ 도메인·문구 확인 |
+| 02 | [소셜 공유 최적화(정적 OG)](active/02-social-og-meta.md) | 🔴 높음 | 코드 완료 · 배포검증 대기 | ✅ 답변 완료 (배포 승인만 남음) |
 | 03 | [결과 영속화 + 공유 URL + 동적 OG](active/03-result-share-url.md) | 🟡 중간 | active | ✅ DB·개인정보 정책 결정 |
 | 04 | [Kakao 캐싱 + 레이트리밋](active/04-kakao-cache-ratelimit.md) | 🟢 낮음 | active | ✅ Kakao 키 발급 |
 
