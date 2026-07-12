@@ -1,8 +1,9 @@
 import os
 
 import requests
-from flask import Flask, jsonify, render_template, request, url_for
+from flask import Flask, Response, abort, jsonify, render_template, request, url_for
 
+from content_pages import list_content, load_content
 from saju import calculate_saju
 from saju.compat import couple_compat, zodiac_of
 from saju.regions import DISTRICT_SPOTS, recommend_districts
@@ -202,6 +203,47 @@ def gunghap_places():
         'spots': DISTRICT_SPOTS[district],
         'notice': 'KAKAO_REST_API_KEY를 설정하면 실시간 식당·카페 추천을 받을 수 있어요.',
     })
+
+
+@app.route('/learn')
+def learn_index():
+    return render_template('learn_index.html', articles=list_content())
+
+
+@app.route('/learn/<slug>')
+def learn_article(slug):
+    article = load_content(slug)
+    if article is None:
+        abort(404)
+    related = [a for a in (load_content(s) for s in article['related']) if a]
+    return render_template('learn.html', article=article, related=related)
+
+
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+
+@app.route('/sitemap.xml')
+def sitemap():
+    urls = [
+        f"{PUBLIC_BASE_URL}{url_for('home')}",
+        f"{PUBLIC_BASE_URL}{url_for('gunghap_page')}",
+        f"{PUBLIC_BASE_URL}{url_for('learn_index')}",
+        f"{PUBLIC_BASE_URL}{url_for('privacy')}",
+    ]
+    urls += [
+        f"{PUBLIC_BASE_URL}{url_for('learn_article', slug=a['slug'])}"
+        for a in list_content()
+    ]
+    xml = render_template('sitemap.xml', urls=urls)
+    return Response(xml, mimetype='application/xml')
+
+
+@app.route('/robots.txt')
+def robots_txt():
+    body = f"User-agent: *\nAllow: /\nSitemap: {PUBLIC_BASE_URL}/sitemap.xml\n"
+    return Response(body, mimetype='text/plain')
 
 
 if __name__ == '__main__':

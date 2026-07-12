@@ -11,22 +11,11 @@ from .gapja import (
     EARTHLY_BRANCHES,
     HEAVENLY_STEMS,
 )
+from .relations import branch_relation, is_stem_hap
 
-# ── 지지 관계 (EARTHLY_BRANCHES 인덱스 기준) ─────────────────────
-# 육합: 자축, 인해, 묘술, 진유, 사신, 오미
-YUKHAP_PAIRS = {frozenset(p) for p in [(0, 1), (2, 11), (3, 10), (4, 9), (5, 8), (6, 7)]}
-# 충: 마주보는 지지 (자오, 축미, 인신, 묘유, 진술, 사해)
-CHUNG_PAIRS = {frozenset((i, i + 6)) for i in range(6)}
-# 삼합: 신자진(수), 해묘미(목), 인오술(화), 사유축(금)
-SAMHAP_GROUPS = [
-    frozenset({8, 0, 4}), frozenset({11, 3, 7}),
-    frozenset({2, 6, 10}), frozenset({5, 9, 1}),
-]
-# 원진: 자미, 축오, 인유, 묘신, 진해, 사술
-WONJIN_PAIRS = {frozenset(p) for p in [(0, 7), (1, 6), (2, 9), (3, 8), (4, 11), (5, 10)]}
-
-# 천간합: 갑기, 을경, 병신, 정임, 무계 (인덱스 i와 i+5)
-STEM_HAP_PAIRS = {frozenset((i, i + 5)) for i in range(5)}
+# 궁합 점수 로직이 계속 saju.compat.branch_relation / is_stem_hap 로 임포트할 수 있도록
+# 재노출한다 (구현은 saju/relations.py §6.6로 이동, 동작은 동일).
+__all__ = ["branch_relation", "is_stem_hap", "couple_compat", "zodiac_of"]
 
 ELEMENTS = ["목", "화", "토", "금", "수"]
 
@@ -39,27 +28,6 @@ GRADES = [
     (40, "노력이 필요한 궁합"),
     (0, "서로 이해가 필요한 궁합"),
 ]
-
-
-def branch_relation(idx1: int, idx2: int) -> str | None:
-    """두 지지의 관계: 'yukhap' | 'samhap' | 'chung' | 'wonjin' | None."""
-    pair = frozenset((idx1 % 12, idx2 % 12))
-    if len(pair) == 1:
-        return None  # 같은 지지는 별도 가감 없음
-    if pair in YUKHAP_PAIRS:
-        return "yukhap"
-    if pair in CHUNG_PAIRS:
-        return "chung"
-    if pair in WONJIN_PAIRS:
-        return "wonjin"
-    if any(pair <= group for group in SAMHAP_GROUPS):
-        return "samhap"
-    return None
-
-
-def is_stem_hap(idx1: int, idx2: int) -> bool:
-    """두 천간이 천간합인지."""
-    return frozenset((idx1 % 10, idx2 % 10)) in STEM_HAP_PAIRS
 
 
 def _branch_pair_label(b1: str, b2: str) -> str:

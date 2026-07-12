@@ -51,6 +51,10 @@ const HOUR_OPTS = [
     { v: '19-21', t: '19–21시 · 술시(戌)' }, { v: '21-23', t: '21–23시 · 해시(亥)' },
 ];
 
+const PILLAR_KEYS = ['hour', 'day', 'month', 'year'];
+const PILLAR_SHORT = { hour: '시주', day: '일주', month: '월주', year: '년주' };
+const GIL_SET = new Set(['천을귀인', '천덕귀인', '월덕귀인', '문곡귀인', '학당귀인', '암록']);
+
 // ── 상태 ──────────────────────────────────
 const state = {
     screen: 'landing',
@@ -58,6 +62,8 @@ const state = {
     result: null,
     allRevealed: false,
     locked: true,
+    manseTab: 'wongook',
+    relSubtab: 'ganji',
 };
 let revealTimer = null;
 
@@ -128,6 +134,8 @@ function goHome() {
     state.result = null;
     state.allRevealed = false;
     state.locked = true;
+    state.manseTab = 'wongook';
+    state.relSubtab = 'ganji';
     hideInputError();
     showScreen('landing');
 }
@@ -249,6 +257,301 @@ function pillarCard(label, p, covered) {
         </div>`;
 }
 
+// ── 만세력 탭: 사주원국 ────────────────────
+function wongookCell(p, field) {
+    if (!p) return '-';
+    if (field === 'hidden_stems') return p.hidden_stems.join(' ');
+    if (field === 'gongmang') return p.is_gongmang ? p.branch : '-';
+    return p[field] != null ? p[field] : '-';
+}
+
+function renderWongookTab(r) {
+    const rows = [
+        { label: '십성', field: 'sipseong_stem', tooltip: 'sipseong' },
+        { label: '천간', field: '__stem_tile' },
+        { label: '지지', field: '__branch_tile' },
+        { label: '십성', field: 'sipseong_branch', tooltip: 'sipseong' },
+        { label: '지장간', field: 'hidden_stems', tooltip: 'jijanggan' },
+        { label: '12운성', field: 'unseong12', tooltip: 'unseong12' },
+        { label: '12신살', field: 'sinsal12', tooltip: 'sinsal12' },
+        { label: '공망', field: 'gongmang', tooltip: 'gongmang' },
+    ];
+
+    let html = `
+        <div class="sj-manse-title" style="display:flex;align-items:center;gap:6px;">
+            사주원국 <button type="button" class="sj-help-btn" data-tooltip="wongook">?</button>
+        </div>
+        <div class="sj-wongook-grid"><div></div>`;
+    PILLAR_KEYS.forEach((k) => { html += `<div class="head">${PILLAR_SHORT[k]}</div>`; });
+
+    rows.forEach((row) => {
+        const labelCls = row.tooltip ? 'rowlabel sj-rowlabel-tap' : 'rowlabel';
+        const labelAttr = row.tooltip ? ` data-tooltip="${row.tooltip}"` : '';
+        html += `<div class="${labelCls}"${labelAttr}>${row.label}</div>`;
+        PILLAR_KEYS.forEach((k) => {
+            const p = r.pillars[k];
+            if (row.field === '__stem_tile') {
+                html += p
+                    ? `<div class="stem-tile" style="color:${EL_COLOR[p.stem_element]};">${esc(p.hanja[0])}<span>${esc(p.yin_yang_stem)}</span></div>`
+                    : `<div class="stem-tile" style="color:#77704F;">-</div>`;
+            } else if (row.field === '__branch_tile') {
+                html += p
+                    ? `<div class="branch-tile" style="color:${EL_COLOR[p.branch_element]};">${esc(p.hanja[1])}<span>${esc(p.yin_yang_branch)}</span></div>`
+                    : `<div class="branch-tile" style="color:#77704F;">-</div>`;
+            } else {
+                html += `<div>${esc(wongookCell(p, row.field))}</div>`;
+            }
+        });
+    });
+    html += '</div>';
+    return html;
+}
+
+// ── 만세력 탭: 사주관계 (천간과 지지 / 신살과 길성) ─────────
+function relationCard(rel) {
+    return `<div class="sj-relation-card"><span class="sj-relation-kind">${esc(rel.kind)}</span><span>${esc(rel.pillars.join('·'))} — ${esc(rel.note)}</span></div>`;
+}
+
+function renderRelationsGanji(r) {
+    const stemsHtml = r.relations.stems.length
+        ? r.relations.stems.map(relationCard).join('')
+        : '<div class="sj-empty-state">천간끼리는 특별한 합·충이 없어요</div>';
+    const branchesHtml = r.relations.branches.length
+        ? r.relations.branches.map(relationCard).join('')
+        : '<div class="sj-empty-state">지지끼리는 특별한 합·충이 없어요</div>';
+    return `
+        <div class="sj-manse-title">천간 관계</div>
+        ${stemsHtml}
+        <div class="sj-manse-title" style="margin-top:18px;">지지 관계</div>
+        ${branchesHtml}
+    `;
+}
+
+function gilseongTagList(tags) {
+    if (!tags || !tags.length) return `<div class="sj-gilseong-tags"><span class="sj-gilseong-tag sal">-</span></div>`;
+    return `<div class="sj-gilseong-tags">${tags.map((t) => `<span class="sj-gilseong-tag ${GIL_SET.has(t) ? 'gil' : 'sal'}">${esc(t)}</span>`).join('')}</div>`;
+}
+
+function renderRelationsSinsal(r) {
+    let html = '<div class="sj-wongook-grid"><div></div>';
+    PILLAR_KEYS.forEach((k) => { html += `<div class="head">${PILLAR_SHORT[k]}</div>`; });
+    html += '<div class="rowlabel">천간</div>';
+    PILLAR_KEYS.forEach((k) => {
+        const p = r.pillars[k];
+        html += p
+            ? `<div class="stem-tile" style="color:${EL_COLOR[p.stem_element]};font-size:16px;">${esc(p.hanja[0])}</div>`
+            : '<div>-</div>';
+    });
+    html += '<div class="rowlabel">길성</div>';
+    PILLAR_KEYS.forEach((k) => { html += `<div>${gilseongTagList(r.gilseong.stems[k])}</div>`; });
+    html += '</div>';
+
+    html += '<div class="sj-wongook-grid" style="margin-top:14px;"><div></div>';
+    PILLAR_KEYS.forEach((k) => { html += `<div class="head">${PILLAR_SHORT[k]}</div>`; });
+    html += '<div class="rowlabel">지지</div>';
+    PILLAR_KEYS.forEach((k) => {
+        const p = r.pillars[k];
+        html += p
+            ? `<div class="branch-tile" style="color:${EL_COLOR[p.branch_element]};font-size:16px;">${esc(p.hanja[1])}</div>`
+            : '<div>-</div>';
+    });
+    html += '<div class="rowlabel">길성</div>';
+    PILLAR_KEYS.forEach((k) => { html += `<div>${gilseongTagList(r.gilseong.branches[k])}</div>`; });
+    html += '</div>';
+    return html;
+}
+
+function renderRelationsTab(r) {
+    const sub = state.relSubtab;
+    return `
+        <div class="sj-subtabs">
+            <button type="button" class="sj-subtab ${sub === 'ganji' ? 'active' : ''}" data-relsub="ganji">천간과 지지</button>
+            <button type="button" class="sj-subtab ${sub === 'sinsal' ? 'active' : ''}" data-relsub="sinsal">신살과 길성</button>
+        </div>
+        ${sub === 'sinsal' ? renderRelationsSinsal(r) : renderRelationsGanji(r)}
+    `;
+}
+
+// ── 만세력 탭: 오행과 십성 ─────────────────
+function pentPoint(k, r, cx, cy) {
+    const angle = ((-90 + k * 72) * Math.PI) / 180;
+    return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
+}
+
+function renderOhaengPentagon(pct) {
+    const order = ['목', '화', '토', '금', '수'];
+    const cx = 140, cy = 140, radius = 88, nodeR = 30;
+    const pts = order.map((_, k) => pentPoint(k, radius, cx, cy));
+
+    let edges = '';
+    for (let i = 0; i < 5; i++) {
+        const [x1, y1] = pts[i];
+        const [x2, y2] = pts[(i + 1) % 5];
+        edges += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(212,179,106,.4)" stroke-width="1.5" marker-end="url(#sj-arrow)" />`;
+    }
+    let stars = '';
+    for (let i = 0; i < 5; i++) {
+        const [x1, y1] = pts[i];
+        const [x2, y2] = pts[(i + 2) % 5];
+        stars += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(255,255,255,.14)" stroke-width="1" stroke-dasharray="3,4" />`;
+    }
+    let nodes = '';
+    order.forEach((el, k) => {
+        const [x, y] = pts[k];
+        const value = pct[el] || 0;
+        const dim = value === 0;
+        nodes += `
+            <g>
+                <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${nodeR}" fill="${dim ? 'rgba(255,255,255,.03)' : 'rgba(212,179,106,.1)'}" stroke="${dim ? 'rgba(255,255,255,.12)' : EL_COLOR[el]}" stroke-width="1.5" />
+                <text x="${x.toFixed(1)}" y="${(y - 4).toFixed(1)}" text-anchor="middle" font-family="'Noto Serif KR', serif" font-size="16" font-weight="700" fill="${dim ? '#77704F' : EL_COLOR[el]}">${el}</text>
+                <text x="${x.toFixed(1)}" y="${(y + 14).toFixed(1)}" text-anchor="middle" font-family="'Noto Sans KR', sans-serif" font-size="11" fill="${dim ? '#77704F' : '#EDE4CC'}">${value}%</text>
+            </g>`;
+    });
+
+    return `
+        <svg viewBox="0 0 280 280" width="240" height="240" role="img" aria-label="오행 분포 오각형 다이어그램">
+            <defs>
+                <marker id="sj-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M0,0 L10,5 L0,10 z" fill="rgba(212,179,106,.55)" />
+                </marker>
+            </defs>
+            ${stars}
+            ${edges}
+            ${nodes}
+        </svg>`;
+}
+
+function renderOhaengTab(r) {
+    const a = r.analysis;
+    const GROUP_ORDER = [
+        ['비겁', ['비견', '겁재']], ['식상', ['식신', '상관']], ['재성', ['편재', '정재']],
+        ['관성', ['편관', '정관']], ['인성', ['편인', '정인']],
+    ];
+
+    const cards = GROUP_ORDER.map(([group, names]) => {
+        const el = a.groups[group].element;
+        const groupPct = a.groups[group].pct;
+        const st = a.element_status[el];
+        const detail = names.map((n) => `${n} ${a.sipseong_pct[n]}%`).join(' · ');
+        return `
+            <div class="sj-ohaeng-card">
+                <div class="sj-ohaeng-swatch" style="background:${EL_COLOR[el]}22;color:${EL_COLOR[el]};">${el}</div>
+                <div class="sj-ohaeng-body">
+                    <div class="sj-ohaeng-name">${el}(${group}) <span class="sj-badge ${st}">${st}</span></div>
+                    <div class="sj-ohaeng-detail">${detail}</div>
+                </div>
+                <div class="sj-ohaeng-pct" style="color:${EL_COLOR[el]};">${groupPct}%</div>
+            </div>`;
+    }).join('');
+
+    return `
+        <div class="sj-manse-title" style="display:flex;align-items:center;gap:6px;">
+            오행과 십성 <button type="button" class="sj-help-btn" data-tooltip="ohaeng">?</button>
+        </div>
+        <div class="sj-pentagon-wrap">${renderOhaengPentagon(a.elements_pct)}</div>
+        <div class="sj-ohaeng-list">${cards}</div>
+    `;
+}
+
+// ── 만세력 탭: 신강신약 ─────────────────────
+function renderStrengthTab(r) {
+    const s = r.analysis.strength;
+    const pos = Math.round(s.score * 100);
+    return `
+        <div class="sj-gauge-wrap">
+            <div class="sj-gauge-track">
+                <div class="sj-gauge-marker" style="left:${pos}%;"></div>
+            </div>
+            <div class="sj-gauge-labels"><span>극신약</span><span>신약</span><span>중화</span><span>신강</span><span>극신강</span></div>
+        </div>
+        <div class="sj-strength-grade">${esc(s.grade)}</div>
+        <div class="sj-strength-chips">
+            <span class="sj-chip ${s.deukryeong ? 'on' : ''}">득령</span>
+            <span class="sj-chip ${s.deukji ? 'on' : ''}">득지</span>
+            <span class="sj-chip ${s.deukse ? 'on' : ''}">득세</span>
+        </div>
+        <div class="sj-strength-note">참고용 간이 판정이에요. 정확한 신강신약은 전문가 상담을 권해요.</div>
+    `;
+}
+
+// ── 만세력 탭: 대운수 ────────────────────────
+function luckItem(item, ageOrYear, isCurrent) {
+    return `
+        <div class="sj-luck-item ${isCurrent ? 'current' : ''}">
+            <div class="sj-luck-age">${ageOrYear}</div>
+            <div class="sj-luck-sipseong">${esc(item.sipseong_stem)}</div>
+            <div class="sj-luck-stem" style="color:${EL_COLOR[item.stem_element]};">${esc(item.stem)}</div>
+            <div class="sj-luck-branch" style="color:${EL_COLOR[item.branch_element]};">${esc(item.branch)}</div>
+            <div class="sj-luck-sipseong">${esc(item.sipseong_branch)}</div>
+            <div class="sj-luck-unseong">${esc(item.unseong12)}</div>
+        </div>`;
+}
+
+function ageInYearsTraditional(birthDate, today) {
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const hasHadBirthdayThisYear =
+        today.getMonth() > birthDate.getMonth() ||
+        (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
+    if (!hasHadBirthdayThisYear) age -= 1;
+    return age;
+}
+
+function renderSeunSection(r) {
+    const thisYear = new Date().getFullYear();
+    const items = r.seun.map((p) => luckItem(p, p.year, p.year === thisYear)).join('');
+    return `
+        <div class="sj-manse-title" style="margin-top:22px;">세운(년운)</div>
+        <div class="sj-luck-row">${items}</div>
+    `;
+}
+
+function renderLuckTab(r) {
+    const titleBar = `
+        <div class="sj-manse-title" style="display:flex;align-items:center;gap:6px;">
+            대운수 <button type="button" class="sj-help-btn" data-tooltip="daewoon">?</button>
+        </div>`;
+    if (!r.daewoon) {
+        return `${titleBar}<div class="sj-empty-state">대운은 성별 정보가 있어야 계산돼요.</div>${renderSeunSection(r)}`;
+    }
+    const dw = r.daewoon;
+    const birthDate = new Date(r.solar.year, r.solar.month - 1, r.solar.day);
+    const currentAge = ageInYearsTraditional(birthDate, new Date());
+    const items = dw.pillars.map((p) => {
+        const isCurrent = currentAge >= p.age && currentAge < p.age + 10;
+        return luckItem(p, p.age, isCurrent);
+    }).join('');
+
+    return `
+        ${titleBar}
+        <div class="sj-luck-header">대운수: ${dw.start_age} · ${esc(dw.direction)}</div>
+        <div class="sj-luck-row">${items}</div>
+        ${renderSeunSection(r)}
+    `;
+}
+
+// ── 만세력 탭 바 ─────────────────────────────
+const MANSE_TABS = [
+    { key: 'wongook', label: '사주원국', render: renderWongookTab },
+    { key: 'relations', label: '사주관계', render: renderRelationsTab },
+    { key: 'ohaeng', label: '오행과 십성', render: renderOhaengTab },
+    { key: 'strength', label: '신강신약', render: renderStrengthTab },
+    { key: 'luck', label: '대운수', render: renderLuckTab },
+];
+
+function renderManseTabs(r) {
+    const active = state.manseTab;
+    const tabBtns = MANSE_TABS.map((t) =>
+        `<button type="button" class="sj-manse-tab ${t.key === active ? 'active' : ''}" data-mansetab="${t.key}">${t.label}</button>`
+    ).join('');
+    const activeTab = MANSE_TABS.find((t) => t.key === active) || MANSE_TABS[0];
+    return `
+        <div class="sj-manse">
+            <div class="sj-manse-tabs">${tabBtns}</div>
+            <div class="sj-manse-panel">${activeTab.render(r)}</div>
+        </div>
+    `;
+}
+
 function renderResult() {
     const r = state.result;
     const day = r.pillars.day;
@@ -329,6 +632,10 @@ function renderResult() {
             </div>
         </div>
 
+        <div class="sj-divider"></div>
+
+        ${renderManseTabs(r)}
+
         <div class="sj-report">
             <div class="sj-report-body">
                 <div class="sj-report-title">심층 해석 리포트</div>
@@ -377,6 +684,19 @@ function bindResultActions(el) {
         toast('사주 카드 이미지 저장은 곧 제공될 예정이에요.');
     });
     el.querySelector('[data-action="home"]')?.addEventListener('click', goHome);
+
+    el.querySelectorAll('[data-mansetab]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            state.manseTab = btn.dataset.mansetab;
+            renderResult();
+        });
+    });
+    el.querySelectorAll('[data-relsub]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            state.relSubtab = btn.dataset.relsub;
+            renderResult();
+        });
+    });
 }
 
 let toastTimer = null;
