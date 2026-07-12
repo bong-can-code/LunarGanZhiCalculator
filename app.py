@@ -5,8 +5,9 @@ from flask import Flask, Response, abort, jsonify, render_template, request, url
 
 from content_pages import list_content, load_content
 from saju import calculate_saju
-from saju.compat import couple_compat, zodiac_of
-from saju.regions import DISTRICT_SPOTS, recommend_districts
+from saju.compat import couple_compat, day_stem_pair_relation, team_compat, zodiac_of
+from saju.date_neighborhoods import neighborhood_of
+from saju.luck import current_luck_snapshot
 
 app = Flask(__name__)
 
@@ -124,41 +125,98 @@ def gunghap_page():
 
 @app.route('/gunghap/calculate', methods=['POST'])
 def gunghap_calculate():
+    mode = request.form.get('mode')
+    if mode not in ('couple', 'friends'):
+        return jsonify({'error': '연인/친구 모드를 선택해 주세요.'}), 400
+
     try:
-        (y1, m1, d1), kw1, name1 = _parse_person('p1_', '첫 번째 사람')
-        (y2, m2, d2), kw2, name2 = _parse_person('p2_', '두 번째 사람')
+        count = int(request.form.get('count', 2))
+    except ValueError:
+        count = 2
+    count = max(2, min(count, 4))
+    if mode == 'couple':
+        count = 2  # 연인 모드는 항상 2인
+
+    people = []
+    try:
+        for i in range(1, count + 1):
+            (y, m, d), kw, name = _parse_person(f'p{i}_', f'{i}번째 사람')
+            people.append({'y': y, 'm': m, 'd': d, 'kw': kw, 'name': name})
     except ValueError as exc:
         return jsonify({'error': str(exc)}), 400
 
-    try:
-        saju1 = calculate_saju(y1, m1, d1, **kw1)
-    except ValueError as exc:
-        return jsonify({'error': f'첫 번째 사람: {exc}'}), 400
-    try:
-        saju2 = calculate_saju(y2, m2, d2, **kw2)
-    except ValueError as exc:
-        return jsonify({'error': f'두 번째 사람: {exc}'}), 400
-
-    compat = couple_compat(saju1, saju2)
-    recommendation = recommend_districts(compat['complement_elements'])
+    sajus = []
+    for i, p in enumerate(people, start=1):
+        try:
+            sajus.append(calculate_saju(p['y'], p['m'], p['d'], **p['kw']))
+        except ValueError as exc:
+            return jsonify({'error': f"{i}번째 사람: {exc}"}), 400
 
     def _person(name, saju):
         return {
             'name': name,
             'zodiac': zodiac_of(saju),
             'day_pillar': saju['pillars']['day']['korean'],
+            'day_pillar_hanja': saju['pillars']['day']['hanja'],
+            'day_element': saju['pillars']['day']['stem_element'],
             'solar': saju['solar'],
             'elements': saju['elements'],
+            'daewoon': saju['daewoon'],
         }
 
-    return jsonify({
-        'persons': [_person(name1, saju1), _person(name2, saju2)],
-        'compat': {
+    persons = [_person(p['name'], s) for p, s in zip(people, sajus)]
+    day_elements = [p['day_element'] for p in persons]
+
+    if mode == 'couple':
+        compat = couple_compat(sajus[0], sajus[1])
+        compat_out = {
+            'mode': 'couple',
             'score': compat['score'],
             'grade': compat['grade'],
             'factors': compat['factors'],
-        },
-        'recommendation': recommendation,
+            'day_stem_relation': day_stem_pair_relation(day_elements[0], day_elements[1]),
+        }
+    else:
+        team = team_compat(sajus)
+        compat_out = {
+            'mode': 'friends',
+            'score': team['score'],
+            'grade': team['grade'],
+            'pairwise': team['pairwise'],
+            'unique_day_elements': len(set(day_elements)),
+        }
+
+    return jsonify({
+        'persons': persons,
+        'compat': compat_out,
+        'luck_snapshot': current_luck_snapshot(),
+    })
+
+
+@app.route('/gunghap/date-spots')
+def gunghap_date_spots():
+    """월운(이번 달) 오행 기준 데이트 동네 1곳 + 실시간(또는 폴백) 맛집·카페."""
+    element = current_luck_snapshot()['wolun']['branch_element']
+    nbh = neighborhood_of(element)
+
+    key = _load_kakao_key()
+    if key:
+        try:
+            food = _kakao_search(key, f"{nbh['name']} 맛집", 'FD6')
+            cafe = _kakao_search(key, f"{nbh['name']} 카페", 'CE7')
+            return jsonify({
+                'sample': False,
+                'neighborhood': {'element': element, 'name': nbh['name'], 'tag': nbh['tag'], 'why': nbh['why']},
+                'food': food, 'cafe': cafe,
+            })
+        except requests.RequestException:
+            pass  # 네트워크/키 오류 → 폴백으로 계속
+
+    return jsonify({
+        'sample': True,
+        'neighborhood': {'element': element, 'name': nbh['name'], 'tag': nbh['tag'], 'why': nbh['why']},
+        'places': nbh['places'],
+        'notice': 'KAKAO_REST_API_KEY를 설정하면 실시간 맛집·카페 추천을 받을 수 있어요.',
     })
 
 
@@ -179,30 +237,6 @@ def _kakao_search(key, query, category_code):
         }
         for doc in resp.json().get('documents', [])
     ]
-
-
-@app.route('/gunghap/places')
-def gunghap_places():
-    district = request.args.get('district', '')
-    if district not in DISTRICT_SPOTS:
-        return jsonify({'error': '지원하지 않는 지역입니다.'}), 400
-
-    key = _load_kakao_key()
-    if key:
-        try:
-            food = _kakao_search(key, f'{district} 맛집', 'FD6')
-            cafe = _kakao_search(key, f'{district} 카페', 'CE7')
-            return jsonify({'sample': False, 'district': district,
-                            'food': food, 'cafe': cafe})
-        except requests.RequestException:
-            pass  # 네트워크/키 오류 → 폴백으로 계속
-
-    return jsonify({
-        'sample': True,
-        'district': district,
-        'spots': DISTRICT_SPOTS[district],
-        'notice': 'KAKAO_REST_API_KEY를 설정하면 실시간 식당·카페 추천을 받을 수 있어요.',
-    })
 
 
 @app.route('/learn')

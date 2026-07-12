@@ -14,7 +14,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from .gapja import HEAVENLY_STEMS, gapja_index, pillar
-from .pillars import year_pillar
+from .pillars import month_pillar, year_pillar
 from .solar_terms import MONTH_TERMS, solar_term_datetime
 
 
@@ -80,3 +80,17 @@ def seun_pillars(center_year: int | None = None, span: int = 4) -> list[dict]:
         # 절기 무관하게 "그 해"를 가리키도록 입춘 이후 시점(6월 1일)으로 계산한다.
         result.append({"year": y, **year_pillar(datetime(y, 6, 1))})
     return result
+
+
+def current_luck_snapshot(now: datetime | None = None) -> dict:
+    """지금 이 순간의 세운(올해 연주)·월운(이번 달 월주). 특정 인물과 무관한 공통 값이다.
+
+    월주는 절기 경계로 정해지므로(오호둔 규칙), 연간 인덱스가 먼저 필요해 year_pillar를
+    선행 계산한다. 커플/그룹 궁합 결과 화면에서 "지금 우리에게 흐르는 기운" 카드에 쓰인다.
+    """
+    if now is None:
+        now = datetime.now()
+    yp = year_pillar(now)
+    year_stem_idx = HEAVENLY_STEMS.index(yp["stem"])
+    mp = month_pillar(now, year_stem_idx)
+    return {"seun": yp, "wolun": mp}

@@ -99,13 +99,14 @@ function opt(value, text) {
 }
 
 function bindActions() {
-    // data-action 버튼 (start / home / calc)
+    // data-action 버튼 (start / home / calc / gunghap)
     document.querySelectorAll('[data-action]').forEach((btn) => {
         btn.addEventListener('click', () => {
             const act = btn.dataset.action;
             if (act === 'start') showScreen('input');
             else if (act === 'home') goHome();
             else if (act === 'calc') calc();
+            else if (act === 'gunghap') window.location.href = '/gunghap';
         });
     });
 

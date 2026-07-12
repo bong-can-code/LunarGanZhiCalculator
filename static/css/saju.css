@@ -157,6 +157,25 @@ body {
 }
 .sj-social b { color: #C9B27A; }
 
+/* ── 모드 선택 카드 (홈 허브의 사주/궁합 선택, 궁합의 연인/친구 선택 공용) ── */
+.sj-mode-cards { display: flex; flex-direction: column; gap: 14px; flex: 1; }
+.sj-mode-card {
+    text-align: left;
+    border: 1px solid rgba(255, 255, 255, .12);
+    cursor: pointer;
+    padding: 24px;
+    border-radius: 20px;
+    background: linear-gradient(160deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01));
+    font-family: 'Noto Sans KR', sans-serif;
+}
+.sj-mode-couple { border-color: rgba(226, 115, 150, .28); background: linear-gradient(160deg, rgba(226, 115, 150, .1), rgba(255, 255, 255, .01)); }
+.sj-mode-friends { border-color: rgba(95, 183, 132, .28); background: linear-gradient(160deg, rgba(95, 183, 132, .1), rgba(255, 255, 255, .01)); }
+.sj-mode-saju { border-color: rgba(212, 179, 106, .32); background: linear-gradient(160deg, rgba(212, 179, 106, .1), rgba(255, 255, 255, .01)); }
+.sj-mode-gunghap { border-color: rgba(226, 115, 150, .28); background: linear-gradient(160deg, rgba(226, 115, 150, .1), rgba(255, 255, 255, .01)); }
+.sj-mode-emoji { font-size: 34px; margin-bottom: 12px; }
+.sj-mode-name { font-size: 19px; font-weight: 700; color: #F2ECDA; margin-bottom: 5px; }
+.sj-mode-desc { font-size: 13px; color: #A79E88; line-height: 1.6; }
+
 /* ============================================================
    INPUT
    ============================================================ */

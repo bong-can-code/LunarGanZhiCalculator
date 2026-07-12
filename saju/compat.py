@@ -11,11 +11,17 @@ from .gapja import (
     EARTHLY_BRANCHES,
     HEAVENLY_STEMS,
 )
+from itertools import combinations
+
 from .relations import branch_relation, is_stem_hap
+from .tables_analysis import GENERATES
 
 # 궁합 점수 로직이 계속 saju.compat.branch_relation / is_stem_hap 로 임포트할 수 있도록
 # 재노출한다 (구현은 saju/relations.py §6.6로 이동, 동작은 동일).
-__all__ = ["branch_relation", "is_stem_hap", "couple_compat", "zodiac_of"]
+__all__ = [
+    "branch_relation", "is_stem_hap", "couple_compat", "team_compat",
+    "day_stem_relation", "zodiac_of",
+]
 
 ELEMENTS = ["목", "화", "토", "금", "수"]
 
@@ -130,6 +136,38 @@ def couple_compat(result1: dict, result2: dict) -> dict:
         "factors": factors,
         "complement_elements": complement,
     }
+
+
+def day_stem_pair_relation(element_a: str, element_b: str) -> str:
+    """두 일간 오행의 관계: 'same'(비화) | 'gen'(상생) | 'ctrl'(상극).
+
+    커플 궁합 데이트 화면의 일간 관계 뱃지(生/比/剋)에 쓰인다. couple_compat()의
+    점수(천간합·육합·오행보완 종합)와는 별개로, "두 사람 일간의 오행이 어떤
+    관계인가"라는 하나의 사실만 알려주는 지표다.
+    """
+    if element_a == element_b:
+        return "same"
+    if GENERATES[element_a] == element_b or GENERATES[element_b] == element_a:
+        return "gen"
+    return "ctrl"
+
+
+def team_compat(results: list[dict]) -> dict:
+    """calculate_saju() 결과 N개(3~4인)의 팀 궁합.
+
+    기존 couple_compat()을 모든 쌍(i<j)에 적용해 평균낸 점수를 쓴다 — 검증된
+    2인 궁합 엔진을 그대로 재사용해 새 점수 체계를 만들지 않는다.
+    반환: {'score', 'grade', 'pairwise': [{'a','b','score','grade'}, ...]}
+    """
+    if len(results) < 2:
+        raise ValueError("team_compat에는 최소 2명이 필요합니다.")
+    pairwise = []
+    for i, j in combinations(range(len(results)), 2):
+        c = couple_compat(results[i], results[j])
+        pairwise.append({"a": i, "b": j, "score": c["score"], "grade": c["grade"]})
+    score = round(sum(p["score"] for p in pairwise) / len(pairwise))
+    grade = next(g for threshold, g in GRADES if score >= threshold)
+    return {"score": score, "grade": grade, "pairwise": pairwise}
 
 
 def zodiac_of(result: dict) -> dict:

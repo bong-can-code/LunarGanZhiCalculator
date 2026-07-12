@@ -17,20 +17,24 @@
   (규칙 상세: [plan/active/05-saju-analysis-engine.md](plan/active/05-saju-analysis-engine.md),
   전문가 검수용 요약: [docs/expert-review/saju-analysis-rules.md](docs/expert-review/saju-analysis-rules.md)).
 
-### 💕 커플 궁합 & 데이트 지역 추천 (`/gunghap`)
+### 💕 사주 궁합 데이트 (`/gunghap`)
 
+- **연인 모드(2인) · 친구 모드(2~4인)**: 연인은 정통 궁합 엔진을, 친구는 모든 짝(pairwise)의
+  궁합 점수를 평균 내는 팀 궁합 엔진을 씁니다
+  (구현: [saju/compat.py](saju/compat.py) `couple_compat`/`team_compat`).
 - **궁합 점수(0~100)**: 일간 천간합, 일지·띠의 육합/삼합/충/원진, 오행 상호보완을 점수화합니다
-  (규칙 상세: [plan/done/DESIGN_GUNGHAP.md](plan/done/DESIGN_GUNGHAP.md), 구현: [saju/compat.py](saju/compat.py)).
-- **십이간지 커플 캐릭터**: 두 사람의 띠(사주 연지 기준) 동물을 귀여운 SVG 캐릭터로 그려
-  하트와 함께 보여줍니다 ([static/js/zodiac.js](static/js/zodiac.js)).
-- **데이트 지역 추천**: 두 사람에게 부족한 오행 → 오행 방위(목=동/화=남/토=중앙/금=서/수=북) →
-  서울 자치구를 추천합니다 ([saju/regions.py](saju/regions.py)).
-- **식당·카페 추천 (카카오 로컬 API)**: 추천 구를 선택하면 실시간 맛집·카페 5곳씩 보여줍니다.
-  프로젝트 루트의 `data.env` 파일(git 미추적)에 `KAKAO_REST_API_KEY=발급받은키` 를 넣거나
-  환경변수로 설정하세요. 키가 없으면 구별 대표 데이트 명소(공개 정보)로 대체됩니다.
-- **결과 이미지 & 인스타그램 공유**: 1080×1080 결과 카드를 캔버스로 생성해
-  모바일은 공유 시트(인스타그램 선택), 데스크톱은 PNG 저장으로 공유합니다.
-  (인스타그램은 웹에서 직접 게시 API를 제공하지 않아 공유 시트/저장 방식이 표준입니다.)
+  (규칙 상세: [plan/done/DESIGN_GUNGHAP.md](plan/done/DESIGN_GUNGHAP.md)).
+- **일간 관계(生·比·剋)**: 두 사람(또는 팀)의 일간 오행이 상생·비화·상극 중 무엇인지 별도로
+  보여줍니다 (`day_stem_pair_relation`).
+- **지금 흐르는 기운(대운·세운·월운)**: 나의 현재 대운, 올해 세운, 이번 달 월운 간지를 함께
+  보여줍니다 ([saju/luck.py](saju/luck.py) `current_luck_snapshot`).
+- **이 달의 데이트 동네 추천**: 이번 달 월운 오행 → 서울 트렌디 동네 1곳(연남동/경리단길/
+  북촌삼청동/한남동/성수동)을 추천하고, 카카오 로컬 API로 실시간 맛집·카페를 보여줍니다
+  ([saju/date_neighborhoods.py](saju/date_neighborhoods.py)). 프로젝트 루트의 `data.env`
+  파일(git 미추적)에 `KAKAO_REST_API_KEY=발급받은키`를 넣거나 환경변수로 설정하세요.
+  키가 없으면 동네별 대표 명소(공개 정보)로 대체됩니다.
+- **단계적 장소 공개**: 첫 번째 장소는 바로 보이고, 나머지는 공유 후 열리는 바이럴 유도
+  UI입니다 (실제 공유 이미지 생성은 준비 중).
 
 ## 📐 계산 기준 (정확도 근거)
 
