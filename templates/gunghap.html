@@ -3,100 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>커플 궁합 &amp; 데이트 지역 추천</title>
-    {% set meta_title = "십이간지 커플 궁합 💕" %}
-    {% set meta_description = "생일로 보는 우리 궁합과 데이트 지역 추천" %}
+    <title>커플 사주 궁합 데이트</title>
+    {% set meta_title = "사주 궁합 데이트 💕" %}
+    {% set meta_description = "연인이든 친구든, 사주 궁합과 이번 달 기운에 맞는 동네·맛집·카페를 추천해요." %}
     {% set meta_image = og_image_url('gunghap-og.png') %}
     {% set meta_path = url_for('gunghap_page') %}
     {% set favicon = "%F0%9F%92%95" %}
     {% include "_meta.html" %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/gunghap.css') }}">
-    <script src="{{ url_for('static', filename='js/zodiac.js') }}" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/saju.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/gunghap-date.css') }}">
     <script src="{{ url_for('static', filename='js/gunghap.js') }}" defer></script>
 </head>
 <body>
-    <div class="container">
-        <p class="nav-link"><a href="/">&larr; 사주 계산기로</a></p>
-        <h1>우리 궁합은 몇 점일까? 💕</h1>
+<div class="sj-stage">
+  <div class="sj-app">
 
-        <form id="gunghap-form">
-            <div class="person-grid">
-                {% for p in [('p1', '💙 첫 번째 사람'), ('p2', '❤️ 두 번째 사람')] %}
-                {% set prefix = p[0] %}
-                <fieldset class="person-card">
-                    <legend>{{ p[1] }}</legend>
-
-                    <label for="{{ prefix }}_name">이름 (선택)</label>
-                    <input type="text" id="{{ prefix }}_name" name="{{ prefix }}_name"
-                           maxlength="10" placeholder="결과 이미지에 표시돼요">
-
-                    <div class="radio-row">
-                        <label class="inline">
-                            <input type="radio" name="{{ prefix }}_gender" value="male" checked> 남자
-                        </label>
-                        <label class="inline">
-                            <input type="radio" name="{{ prefix }}_gender" value="female"> 여자
-                        </label>
-                    </div>
-
-                    <div class="radio-row">
-                        <label class="inline">
-                            <input type="radio" name="{{ prefix }}_calendarType" value="solar" checked> 양력
-                        </label>
-                        <label class="inline">
-                            <input type="radio" name="{{ prefix }}_calendarType" value="lunar"> 음력
-                        </label>
-                        <label class="inline leap-wrap" data-prefix="{{ prefix }}" style="display:none;">
-                            <input type="checkbox" name="{{ prefix }}_leapMonth" value="true"> 윤달
-                        </label>
-                    </div>
-
-                    <label for="{{ prefix }}_year">출생년도</label>
-                    <select name="{{ prefix }}_year" id="{{ prefix }}_year">
-                        {% for year in range(2026, 1900, -1) %}
-                        <option value="{{ year }}" {% if year == 1995 %}selected{% endif %}>{{ year }}</option>
-                        {% endfor %}
-                    </select>
-
-                    <label for="{{ prefix }}_month">월</label>
-                    <select name="{{ prefix }}_month" id="{{ prefix }}_month">
-                        {% for month in range(1, 13) %}
-                        <option value="{{ month }}">{{ month }}</option>
-                        {% endfor %}
-                    </select>
-
-                    <label for="{{ prefix }}_day">일</label>
-                    <select name="{{ prefix }}_day" id="{{ prefix }}_day">
-                        {% for day in range(1, 32) %}
-                        <option value="{{ day }}">{{ day }}</option>
-                        {% endfor %}
-                    </select>
-
-                    <label for="{{ prefix }}_hour">시간</label>
-                    <select name="{{ prefix }}_hour" id="{{ prefix }}_hour">
-                        <option value="unknown">시간은 잘몰라요...</option>
-                        <option value="23-1">23시 - 1시 (子時)</option>
-                        <option value="1-3">1시 - 3시 (丑時)</option>
-                        <option value="3-5">3시 - 5시 (寅時)</option>
-                        <option value="5-7">5시 - 7시 (卯時)</option>
-                        <option value="7-9">7시 - 9시 (辰時)</option>
-                        <option value="9-11">9시 - 11시 (巳時)</option>
-                        <option value="11-13">11시 - 13시 (午時)</option>
-                        <option value="13-15">13시 - 15시 (未時)</option>
-                        <option value="15-17">15시 - 17시 (申時)</option>
-                        <option value="17-19">17시 - 19시 (酉時)</option>
-                        <option value="19-21">19시 - 21시 (戌時)</option>
-                        <option value="21-23">21시 - 23시 (亥時)</option>
-                    </select>
-                </fieldset>
-                {% endfor %}
-            </div>
-
-            <button type="submit">궁합 보기 💘</button>
-        </form>
-
-        <div id="result"></div>
+    <!-- 배경 별 -->
+    <div class="sj-stars" aria-hidden="true">
+      <span class="sj-star" style="top:8%;  left:14%; width:3px; height:3px; animation-duration:4s;"></span>
+      <span class="sj-star" style="top:22%; left:78%; width:2px; height:2px; animation-duration:5.5s; animation-delay:.8s;"></span>
+      <span class="sj-star" style="top:46%; left:30%; width:2px; height:2px; background:#C9B27A; animation-duration:6s; animation-delay:1.6s;"></span>
+      <span class="sj-star" style="top:63%; left:85%; width:3px; height:3px; animation-duration:4.8s; animation-delay:.4s;"></span>
+      <span class="sj-star" style="top:33%; left:55%; width:2px; height:2px; animation-duration:5s; animation-delay:1.1s;"></span>
     </div>
+
+    <!-- ============ LANDING ============ -->
+    <section class="sj-screen sj-landing sj-date-landing" data-screen="landing">
+      <div class="sj-landing-body">
+        <div class="sj-date-emblem" aria-hidden="true">
+          <div class="glow"></div>
+          <div class="sj-date-stamp" style="border-color:#5FB784; color:#5FB784; text-shadow:0 0 20px rgba(95,183,132,.5); transform:rotate(-6deg);">甲</div>
+          <div class="sj-date-heart">❤</div>
+          <div class="sj-date-stamp" style="border-color:#DE6A54; color:#DE6A54; text-shadow:0 0 20px rgba(222,106,84,.5); transform:rotate(6deg);">丙</div>
+        </div>
+        <div class="sj-kicker">사 주 · 궁 합 데 이 트</div>
+        <h1 class="sj-title">우리 궁합,<br>이번 달 어디로 가야 할까?</h1>
+        <p class="sj-lede">연인이든 친구든, 사주로 궁합을 보고 이번 달 기운(월운)에 맞는 동네와 맛집·카페까지 골라 드려요.</p>
+      </div>
+      <div class="sj-landing-cta">
+        <a class="sj-back" href="{{ url_for('home') }}" style="align-self:center; margin-bottom:4px;">← 사주 계산기로</a>
+        <button type="button" class="sj-btn-gold" data-action="start">궁합 데이트 코스 보기</button>
+        <div class="sj-social"><span>이번 주 <b>8,417 팀</b>이 데이트 동네를 추천받았어요 💫</span></div>
+      </div>
+    </section>
+
+    <!-- ============ MODE ============ -->
+    <section class="sj-screen sj-input" data-screen="mode" hidden>
+      <button type="button" class="sj-back" data-action="home">← 처음으로</button>
+      <div class="sj-step">STEP 01</div>
+      <h2 class="sj-h2">누구와 함께인가요?</h2>
+      <div class="sj-mode-cards">
+        <button type="button" class="sj-mode-card sj-mode-couple" data-mode="couple">
+          <div class="sj-mode-emoji">💞</div>
+          <div class="sj-mode-name">연인</div>
+          <div class="sj-mode-desc">둘의 궁합과 오늘 잘 맞는 데이트 코스를 확인해요 · 2명</div>
+        </button>
+        <button type="button" class="sj-mode-card sj-mode-friends" data-mode="friends">
+          <div class="sj-mode-emoji">🧑‍🤝‍🧑</div>
+          <div class="sj-mode-name">친구</div>
+          <div class="sj-mode-desc">우리 팀 케미를 보고 모임 장소를 추천받아요 · 최대 4명</div>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============ INPUT ============ -->
+    <section class="sj-screen sj-input" data-screen="input" hidden>
+      <button type="button" class="sj-back" data-action="back-mode">← 뒤로</button>
+      <div class="sj-step">STEP 02</div>
+      <h2 class="sj-h2" id="input-title">생일을 알려주세요</h2>
+      <p class="sj-sub">태어난 시각까지 넣으면 궁합이 더 선명해져요</p>
+
+      <div class="sj-person-tabs" id="person-tabs"></div>
+
+      <div class="sj-caltabs">
+        <button type="button" class="sj-tab active" data-cal="solar">양력</button>
+        <button type="button" class="sj-tab" data-cal="lunar">음력</button>
+      </div>
+
+      <form id="gunghap-form" class="sj-fields">
+        <div class="sj-field-row">
+          <label class="sj-field">
+            <span class="sj-field-label">성별</span>
+            <div class="sj-gender-row">
+              <label class="sj-gender-opt"><input type="radio" name="gender" value="male" checked> 남자</label>
+              <label class="sj-gender-opt"><input type="radio" name="gender" value="female"> 여자</label>
+            </div>
+          </label>
+        </div>
+        <label class="sj-field">
+          <span class="sj-field-label">이름 (선택, 결과에 표시돼요)</span>
+          <input type="text" class="sj-text-input" id="f-name" maxlength="10" placeholder="예: 민지">
+        </label>
+        <label class="sj-field">
+          <span class="sj-field-label">출생 연도</span>
+          <select class="sj-select" id="f-year" name="year"></select>
+        </label>
+        <div class="sj-field-row">
+          <label class="sj-field">
+            <span class="sj-field-label">월</span>
+            <select class="sj-select" id="f-month" name="month"></select>
+          </label>
+          <label class="sj-field">
+            <span class="sj-field-label">일</span>
+            <select class="sj-select" id="f-day" name="day"></select>
+          </label>
+        </div>
+        <label class="sj-leap" id="f-leap-wrap">
+          <input type="checkbox" id="f-leap"> 윤달(閏月)로 계산
+        </label>
+        <label class="sj-field">
+          <span class="sj-field-label">태어난 시각</span>
+          <select class="sj-select" id="f-hour" name="hour"></select>
+        </label>
+      </form>
+
+      <button type="button" class="sj-btn-ghost sj-add-person" id="add-person-btn" hidden>+ 친구 추가</button>
+
+      <p class="sj-input-error" id="input-error"></p>
+      <button type="button" class="sj-btn-gold" data-action="calc" id="calc-btn" style="margin-top:22px;">💞 궁합 &amp; 데이트 코스 보기</button>
+    </section>
+
+    <!-- ============ REVEAL ============ -->
+    <section class="sj-screen sj-reveal" data-screen="reveal" hidden>
+      <div class="sj-loader sj-date-loader" aria-hidden="true">
+        <div class="lr1"></div>
+        <div class="lr2" style="border-bottom-color:#E27396; border-color:rgba(226,115,150,.2);"></div>
+        <div class="glyph sj-date-heart-glyph">❤</div>
+      </div>
+      <div class="sj-reveal-msg" id="reveal-msg">사주를 세우는 중</div>
+      <div class="sj-reveal-hint">기운을 겹쳐 보는 중…</div>
+    </section>
+
+    <!-- ============ RESULT ============ -->
+    <section class="sj-screen sj-result" data-screen="result" id="result" hidden></section>
+
+  </div>
+</div>
 </body>
 </html>

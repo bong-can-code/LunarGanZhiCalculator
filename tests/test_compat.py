@@ -5,9 +5,17 @@
 """
 
 from saju import calculate_saju
-from saju.compat import branch_relation, couple_compat, is_stem_hap, zodiac_of
+from saju.compat import (
+    branch_relation,
+    couple_compat,
+    day_stem_pair_relation,
+    is_stem_hap,
+    team_compat,
+    zodiac_of,
+)
+from saju.date_neighborhoods import NEIGHBORHOODS, neighborhood_of
 from saju.gapja import EARTHLY_BRANCHES, HEAVENLY_STEMS
-from saju.regions import DISTRICT_SPOTS, ELEMENT_DISTRICTS, recommend_districts
+from saju.luck import current_luck_snapshot
 
 
 def _b(name):
@@ -82,26 +90,13 @@ def test_score_clamped_and_graded():
     assert isinstance(compat["grade"], str) and compat["grade"]
 
 
-# ── 보완 오행과 지역 추천 ─────────────────────────────────────
-def test_complement_elements_and_districts():
+# ── 보완 오행 (couple_compat 자체 산출물 — 지역 추천 UI는 saju/date_neighborhoods.py로 대체됨) ──
+def test_complement_elements():
     r1 = calculate_saju(2024, 1, 1, 12, gender="male")
     r2 = calculate_saju(2024, 1, 2, 12, gender="female")
     compat = couple_compat(r1, r2)
-
     assert 1 <= len(compat["complement_elements"]) <= 2
-
-    rec = recommend_districts(compat["complement_elements"])
-    assert rec["districts"], "추천 지역이 비어 있으면 안 된다"
-    for d in rec["districts"]:
-        assert d["name"] in DISTRICT_SPOTS
-        assert len(d["spots"]) >= 1
-
-
-def test_all_mapped_districts_have_spots():
-    """오행 매핑에 등장하는 모든 구는 폴백 명소를 가져야 한다."""
-    for districts in ELEMENT_DISTRICTS.values():
-        for name in districts:
-            assert name in DISTRICT_SPOTS, f"{name} 폴백 명소 누락"
+    assert all(el in ("목", "화", "토", "금", "수") for el in compat["complement_elements"])
 
 
 # ── 띠 추출 ──────────────────────────────────────────────────
@@ -112,3 +107,61 @@ def test_zodiac_of():
 
     r_before_ipchun = calculate_saju(2024, 1, 1, 12, gender="male")  # 입춘 전 → 계묘년 토끼띠
     assert zodiac_of(r_before_ipchun)["animal"] == "토끼"
+
+
+# ── 일간 오행 관계 (커플 데이트 화면의 生/比/剋 뱃지) ──────────────
+def test_day_stem_pair_relation():
+    assert day_stem_pair_relation("목", "목") == "same"
+    assert day_stem_pair_relation("목", "화") == "gen"   # 목생화
+    assert day_stem_pair_relation("화", "목") == "gen"   # 순서 무관
+    assert day_stem_pair_relation("목", "토") == "ctrl"  # 목극토
+
+
+# ── 팀(친구 3~4인) 궁합: 쌍별 couple_compat 평균과 일치해야 한다 ──
+def test_team_compat_matches_pairwise_average():
+    r1 = calculate_saju(2024, 1, 1, 12, gender="male")     # 갑자일
+    r2 = calculate_saju(2024, 1, 2, 12, gender="female")   # 을축일 (자축 육합)
+    r3 = calculate_saju(2024, 1, 7, 12, gender="male")     # 경오일 (자오 충)
+
+    team = team_compat([r1, r2, r3])
+    expected = [couple_compat(r1, r2)["score"], couple_compat(r1, r3)["score"], couple_compat(r2, r3)["score"]]
+    assert team["score"] == round(sum(expected) / 3)
+    assert len(team["pairwise"]) == 3
+    assert isinstance(team["grade"], str) and team["grade"]
+
+
+def test_team_compat_requires_at_least_two():
+    import pytest
+    with pytest.raises(ValueError):
+        team_compat([calculate_saju(2024, 1, 1, 12, gender="male")])
+
+
+# ── 지금 이 순간의 세운·월운 스냅샷 ────────────────────────────
+def test_current_luck_snapshot_matches_direct_calculation():
+    from datetime import datetime
+
+    from saju.pillars import month_pillar, year_pillar
+
+    now = datetime(2026, 7, 13, 12, 0)
+    snap = current_luck_snapshot(now)
+
+    yp = year_pillar(now)
+    mp = month_pillar(now, HEAVENLY_STEMS.index(yp["stem"]))
+    assert snap["seun"]["hanja"] == yp["hanja"]
+    assert snap["wolun"]["hanja"] == mp["hanja"]
+    assert "branch_element" in snap["wolun"]
+
+
+# ── 이 달의 데이트 동네 (오행 → 동네 1곳 + 폴백 장소) ──────────────
+def test_neighborhood_of_covers_all_elements():
+    for element in ("목", "화", "토", "금", "수"):
+        nbh = neighborhood_of(element)
+        assert nbh["element"] == element
+        assert nbh["name"] and nbh["tag"] and nbh["why"]
+        assert len(nbh["places"]) >= 1
+        for place in nbh["places"]:
+            assert place["name"] and place["category"] and place["address"]
+
+
+def test_neighborhoods_have_exactly_five_elements():
+    assert set(NEIGHBORHOODS.keys()) == {"목", "화", "토", "금", "수"}

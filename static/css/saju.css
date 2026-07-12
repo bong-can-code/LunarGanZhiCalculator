@@ -157,6 +157,25 @@ body {
 }
 .sj-social b { color: #C9B27A; }
 
+/* ── 모드 선택 카드 (홈 허브의 사주/궁합 선택, 궁합의 연인/친구 선택 공용) ── */
+.sj-mode-cards { display: flex; flex-direction: column; gap: 14px; flex: 1; }
+.sj-mode-card {
+    text-align: left;
+    border: 1px solid rgba(255, 255, 255, .12);
+    cursor: pointer;
+    padding: 24px;
+    border-radius: 20px;
+    background: linear-gradient(160deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01));
+    font-family: 'Noto Sans KR', sans-serif;
+}
+.sj-mode-couple { border-color: rgba(226, 115, 150, .28); background: linear-gradient(160deg, rgba(226, 115, 150, .1), rgba(255, 255, 255, .01)); }
+.sj-mode-friends { border-color: rgba(95, 183, 132, .28); background: linear-gradient(160deg, rgba(95, 183, 132, .1), rgba(255, 255, 255, .01)); }
+.sj-mode-saju { border-color: rgba(212, 179, 106, .32); background: linear-gradient(160deg, rgba(212, 179, 106, .1), rgba(255, 255, 255, .01)); }
+.sj-mode-gunghap { border-color: rgba(226, 115, 150, .28); background: linear-gradient(160deg, rgba(226, 115, 150, .1), rgba(255, 255, 255, .01)); }
+.sj-mode-emoji { font-size: 34px; margin-bottom: 12px; }
+.sj-mode-name { font-size: 19px; font-weight: 700; color: #F2ECDA; margin-bottom: 5px; }
+.sj-mode-desc { font-size: 13px; color: #A79E88; line-height: 1.6; }
+
 /* ============================================================
    INPUT
    ============================================================ */
@@ -478,6 +497,314 @@ body {
     margin-top: 12px;
     min-height: 18px;
     transition: opacity .3s;
+}
+
+/* ============================================================
+   만세력 탭 (사주원국 · 사주관계 · 오행과 십성 · 신강신약 · 대운수)
+   ============================================================ */
+.sj-manse { margin: 4px 0 26px; }
+
+.sj-manse-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    margin-bottom: 18px;
+}
+.sj-manse-tab {
+    flex: 0 0 auto;
+    border: 1px solid rgba(212, 179, 106, .25);
+    background: rgba(255, 255, 255, .03);
+    color: #9A926F;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.sj-manse-tab.active {
+    background: linear-gradient(100deg, #E9D49B, #D4B36A);
+    color: #1a1206;
+    border-color: transparent;
+}
+.sj-manse-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 15px;
+    color: #EDE4CC;
+    margin: 0 0 14px;
+}
+
+/* 사주원국 표 / 신살길성 표 공용 그리드 */
+.sj-wongook-grid {
+    display: grid;
+    grid-template-columns: 52px repeat(4, 1fr);
+    gap: 1px;
+    background: rgba(255, 255, 255, .06);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 14px;
+}
+.sj-wongook-grid > div {
+    background: #100d1c;
+    padding: 9px 3px;
+    text-align: center;
+    font-size: 11px;
+    color: #B8AE8C;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+}
+.sj-wongook-grid .rowlabel { color: #8A815F; font-size: 10px; justify-content: flex-start; padding-left: 8px; }
+.sj-wongook-grid .head { font-weight: 700; color: #EDE4CC; font-size: 12px; }
+.sj-wongook-grid .stem-tile, .sj-wongook-grid .branch-tile {
+    flex-direction: column;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 19px;
+    font-weight: 700;
+    padding: 9px 2px;
+    line-height: 1.1;
+}
+.sj-wongook-grid .stem-tile span, .sj-wongook-grid .branch-tile span {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 9px;
+    color: #77704F;
+    margin-top: 3px;
+}
+
+/* 사주관계 서브탭 */
+.sj-subtabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.sj-subtab {
+    flex: 1;
+    border: none;
+    background: rgba(255, 255, 255, .03);
+    color: #8A815F;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+}
+.sj-subtab.active { background: rgba(212, 179, 106, .15); color: #E7D6A2; }
+
+.sj-relation-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #C4BB9E;
+}
+.sj-relation-kind {
+    flex: 0 0 auto;
+    font-weight: 700;
+    color: #E7D6A2;
+    background: rgba(212, 179, 106, .12);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 12px;
+}
+.sj-empty-state { text-align: center; color: #77704F; font-size: 13px; padding: 18px 0; }
+
+.sj-gilseong-tags { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.sj-gilseong-tag { font-size: 10px; padding: 3px 6px; border-radius: 6px; white-space: nowrap; }
+.sj-gilseong-tag.gil { background: rgba(212, 179, 106, .15); color: #E7D6A2; }
+.sj-gilseong-tag.sal { background: rgba(255, 255, 255, .05); color: #9A926F; }
+
+/* 오행과 십성 */
+.sj-pentagon-wrap { display: flex; justify-content: center; margin-bottom: 22px; }
+.sj-ohaeng-list { display: flex; flex-direction: column; gap: 10px; }
+.sj-ohaeng-card {
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.sj-ohaeng-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 700;
+    font-size: 15px;
+    flex: 0 0 auto;
+}
+.sj-ohaeng-body { flex: 1; min-width: 0; }
+.sj-ohaeng-name { font-size: 13.5px; color: #EDE4CC; font-weight: 600; }
+.sj-ohaeng-detail { font-size: 11.5px; color: #8A815F; margin-top: 2px; }
+.sj-ohaeng-pct { font-family: 'Noto Serif KR', serif; font-size: 15px; flex: 0 0 auto; }
+
+.sj-badge { font-size: 10.5px; padding: 2px 8px; border-radius: 999px; margin-left: 6px; }
+.sj-badge.부족 { background: rgba(222, 106, 84, .15); color: #DE6A54; }
+.sj-badge.적정 { background: rgba(95, 183, 132, .15); color: #5FB784; }
+.sj-badge.발달 { background: rgba(212, 179, 106, .18); color: #E7D6A2; }
+.sj-badge.과다 { background: rgba(101, 151, 205, .18); color: #6597CD; }
+
+/* 신강신약 */
+.sj-gauge-wrap { margin: 6px 0 20px; }
+.sj-gauge-track {
+    position: relative;
+    height: 10px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #DE6A54, #DCA94E, #5FB784, #6597CD, #8A6FD6);
+    margin-bottom: 10px;
+}
+.sj-gauge-marker {
+    position: absolute;
+    top: -4px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #0c0a16;
+    transform: translateX(-50%);
+    box-shadow: 0 0 0 1px rgba(212, 179, 106, .5);
+}
+.sj-gauge-labels { display: flex; justify-content: space-between; font-size: 10px; color: #77704F; }
+.sj-strength-grade {
+    text-align: center;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 22px;
+    color: #EDE4CC;
+    margin: 14px 0;
+}
+.sj-strength-chips { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; }
+.sj-chip {
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, .1);
+    color: #77704F;
+}
+.sj-chip.on { border-color: rgba(212, 179, 106, .5); color: #E7D6A2; background: rgba(212, 179, 106, .1); }
+.sj-strength-note { text-align: center; font-size: 11.5px; color: #77704F; margin-top: 6px; }
+
+/* 대운수 */
+.sj-luck-header { font-size: 12.5px; color: #B39B63; margin-bottom: 12px; }
+.sj-luck-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 8px; }
+.sj-luck-item {
+    flex: 0 0 auto;
+    width: 62px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, .07);
+    border-radius: 12px;
+    padding: 8px 3px;
+}
+.sj-luck-item.current { border-color: rgba(212, 179, 106, .6); background: rgba(212, 179, 106, .08); }
+.sj-luck-age { font-size: 11px; color: #8A815F; margin-bottom: 6px; font-weight: 600; }
+.sj-luck-item.current .sj-luck-age { color: #E7D6A2; }
+.sj-luck-sipseong { font-size: 9px; color: #77704F; }
+.sj-luck-stem, .sj-luck-branch { font-family: 'Noto Serif KR', serif; font-size: 15px; font-weight: 700; margin: 2px 0; }
+.sj-luck-unseong { font-size: 9.5px; color: #9A926F; margin-top: 4px; }
+
+/* ============================================================
+   정보성 툴팁 바텀시트 (모든 화면 공용, tooltip.js가 body에 주입)
+   ============================================================ */
+.sj-help-btn {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid rgba(212, 179, 106, .4);
+    background: transparent;
+    color: #B39B63;
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    padding: 0;
+}
+
+.sj-rowlabel-tap { cursor: pointer; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
+
+.sj-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(10, 8, 18, 0);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    transition: background .2s ease;
+}
+.sj-sheet-backdrop.show { background: rgba(10, 8, 18, .55); }
+
+.sj-sheet {
+    width: 100%;
+    max-width: 412px;
+    background: #14111f;
+    border: 1px solid rgba(212, 179, 106, .18);
+    border-bottom: none;
+    border-radius: 22px 22px 0 0;
+    padding: 26px 24px 30px;
+    position: relative;
+    transform: translateY(100%);
+    transition: transform .25s cubic-bezier(.2, .8, .2, 1);
+}
+.sj-sheet-backdrop.show .sj-sheet { transform: translateY(0); }
+
+.sj-sheet-close {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    background: none;
+    border: none;
+    color: #77704F;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px;
+}
+.sj-sheet-close:hover { color: #B39B63; }
+
+.sj-sheet-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 19px;
+    color: #F2ECDA;
+    margin-bottom: 14px;
+    padding-right: 24px;
+}
+.sj-sheet-bullets { list-style: none; margin: 0 0 6px; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.sj-sheet-bullets li {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #C4BB9E;
+    padding-left: 16px;
+    position: relative;
+}
+.sj-sheet-bullets li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 8px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #D4B36A;
+}
+.sj-sheet-learn {
+    display: block;
+    text-align: center;
+    margin-top: 16px;
+    padding: 13px;
+    border-radius: 12px;
+    background: linear-gradient(100deg, #E9D49B, #D4B36A);
+    color: #1a1206;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
 }
 
 /* ── 애니메이션 ──────────────────────────── */

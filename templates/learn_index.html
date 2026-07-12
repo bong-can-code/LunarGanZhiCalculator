@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>명리 사전 · 사주 간지 계산기</title>
+    {% set meta_title = "명리 사전" %}
+    {% set meta_description = "십성·12운성·12신살·공망 등 사주 용어를 쉽게 풀어 설명합니다." %}
+    {% set meta_image = og_image_url('home-og.png') %}
+    {% set meta_path = url_for('learn_index') %}
+    {% set favicon = "%F0%9F%94%AE" %}
+    {% include "_meta.html" %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/saju.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/learn.css') }}">
+</head>
+<body>
+<div class="sj-stage">
+  <div class="sj-app">
+    <article class="sj-article">
+      <a class="sj-article-back" href="{{ url_for('home') }}">← 사주 계산기로</a>
+      <h1>명리 사전</h1>
+      <p>사주에 자주 나오는 용어를 쉽게 풀어 설명합니다.</p>
+
+      <div class="sj-learn-list">
+        {% for a in articles %}
+        <a class="sj-learn-card" href="{{ url_for('learn_article', slug=a.slug) }}">
+          <div class="sj-learn-card-title">{{ a.title }}</div>
+          <div class="sj-learn-card-desc">{{ a.description }}</div>
+        </a>
+        {% endfor %}
+      </div>
+
+      <a class="sj-article-cta" href="{{ url_for('home') }}">내 사주로 직접 확인하기 →</a>
+    </article>
+  </div>
+</div>
+</body>
+</html>

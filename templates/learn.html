@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ article.title }} · 사주 간지 계산기</title>
+    {% set meta_title = article.title %}
+    {% set meta_description = article.description %}
+    {% set meta_image = og_image_url('home-og.png') %}
+    {% set meta_path = url_for('learn_article', slug=article.slug) %}
+    {% set favicon = "%F0%9F%94%AE" %}
+    {% include "_meta.html" %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/saju.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/learn.css') }}">
+</head>
+<body>
+<div class="sj-stage">
+  <div class="sj-app">
+    <article class="sj-article">
+      <a class="sj-article-back" href="{{ url_for('learn_index') }}">← 명리 사전으로</a>
+      {% if article.updated %}<div class="sj-article-updated">업데이트 {{ article.updated }}</div>{% endif %}
+
+      {{ article.html | safe }}
+
+      <div class="sj-ad-slot">광고 영역 (준비 중)</div>
+
+      {% if related %}
+      <div class="sj-article-related">
+        <div class="sj-article-related-title">관련 개념</div>
+        <div class="sj-article-related-list">
+          {% for r in related %}
+          <a href="{{ url_for('learn_article', slug=r.slug) }}">{{ r.title }}</a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <a class="sj-article-cta" href="{{ url_for('home') }}">내 사주로 직접 확인하기 →</a>
+    </article>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,108 @@
+/* ============================================================
+   /learn 콘텐츠 페이지 전용 타이포그래피.
+   saju.css의 .sj-stage/.sj-app 다크 프레임을 그대로 쓰고, 여긴 글 본문 스타일만 담당.
+   ============================================================ */
+
+.sj-article { padding: 52px 24px 60px; }
+
+.sj-article-back {
+    background: none;
+    border: none;
+    color: #8A815F;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 22px;
+}
+.sj-article-back:hover { color: #B39B63; }
+
+.sj-article-updated { font-size: 12px; color: #77704F; margin-bottom: 8px; }
+
+.sj-article h1 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 26px;
+    color: #F2ECDA;
+    line-height: 1.4;
+    margin: 0 0 22px;
+}
+.sj-article h2 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 18px;
+    color: #EDE4CC;
+    margin: 30px 0 12px;
+}
+.sj-article p {
+    font-size: 15px;
+    line-height: 1.9;
+    color: #C4BB9E;
+    margin: 0 0 16px;
+}
+.sj-article ul, .sj-article ol {
+    margin: 0 0 16px;
+    padding-left: 20px;
+    color: #C4BB9E;
+    font-size: 14.5px;
+    line-height: 1.85;
+}
+.sj-article li { margin-bottom: 6px; }
+.sj-article strong { color: #E7D6A2; }
+.sj-article a { color: #E7D6A2; text-decoration: underline; text-underline-offset: 3px; }
+
+.sj-ad-slot {
+    margin: 26px 0;
+    padding: 14px;
+    border: 1px dashed rgba(212, 179, 106, .25);
+    border-radius: 12px;
+    text-align: center;
+    font-size: 11px;
+    color: #77704F;
+    letter-spacing: .5px;
+}
+
+.sj-article-related {
+    margin-top: 34px;
+    padding-top: 22px;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+}
+.sj-article-related-title { font-size: 12px; letter-spacing: 2px; color: #B39B63; margin-bottom: 12px; }
+.sj-article-related-list { display: flex; flex-direction: column; gap: 8px; }
+.sj-article-related-list a {
+    display: block;
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: #DCD3B6;
+    text-decoration: none;
+    font-size: 14px;
+}
+.sj-article-related-list a:hover { border-color: rgba(212, 179, 106, .35); }
+
+.sj-article-cta {
+    display: block;
+    text-align: center;
+    margin-top: 28px;
+    padding: 17px;
+    border-radius: 14px;
+    background: linear-gradient(100deg, #E9D49B, #D4B36A, #F0E0AE);
+    color: #1a1206;
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+}
+
+/* /learn 인덱스 */
+.sj-learn-list { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+.sj-learn-card {
+    display: block;
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 14px;
+    padding: 16px 18px;
+    text-decoration: none;
+}
+.sj-learn-card:hover { border-color: rgba(212, 179, 106, .35); }
+.sj-learn-card-title { font-family: 'Noto Serif KR', serif; font-size: 16px; color: #EDE4CC; margin-bottom: 6px; }
+.sj-learn-card-desc { font-size: 13px; color: #8A815F; line-height: 1.6; }
+
+/* /privacy */
+.sj-privacy h2 { font-family: 'Noto Serif KR', serif; font-size: 17px; color: #EDE4CC; margin: 26px 0 10px; }
+.sj-privacy p, .sj-privacy li { font-size: 14px; line-height: 1.85; color: #C4BB9E; }
