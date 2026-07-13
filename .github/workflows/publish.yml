@@ -1,0 +1,27 @@
+# GitHub Release 발행 시 PyPI에 자동 배포한다.
+# 사전 준비(1회): PyPI 프로젝트 ssod-saju-engine 에 Trusted Publisher(OIDC)로
+#   이 레포/워크플로(publish.yml)와 environment "pypi" 를 등록하면 토큰이 불필요하다.
+#   https://docs.pypi.org/trusted-publishers/
+name: publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write        # PyPI Trusted Publishing(OIDC)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build sdist + wheel
+        run: |
+          pip install build
+          python -m build
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
