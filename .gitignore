@@ -4,3 +4,9 @@ __pycache__/
 *.pyc
 .playwright-shots/
 .claude/
+
+# 빌드/패키징 산출물
+*.egg-info/
+build/
+dist/
+.pytest_cache/
