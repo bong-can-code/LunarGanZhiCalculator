@@ -13,9 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
+      contents: read         # actions/checkout 가 레포를 읽으려면 필요
       id-token: write        # PyPI Trusted Publishing(OIDC)
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

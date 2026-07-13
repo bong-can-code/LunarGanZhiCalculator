@@ -58,9 +58,12 @@ print(team_compat([a, b, ...]))     # 3~4인 팀 궁합
 ## 참조 HTTP API 서버
 
 `server/`에 엔진을 그대로 노출하는 얇은 FastAPI 래퍼가 있습니다(OpenAPI 문서 자동 생성).
+이 참조 서버는 배포 휠(PyPI)에 포함되지 않으므로 소스 체크아웃에서 실행합니다.
 
 ```bash
-pip install "ssod-saju-engine[server]"
+git clone https://github.com/qbong1010/ssod-saju-engine.git
+cd ssod-saju-engine
+pip install ".[server]"
 uvicorn server.main:app --reload      # http://127.0.0.1:8000/docs
 ```
 
