@@ -27,9 +27,9 @@ server = ["fastapi>=0.110", "uvicorn>=0.29"]
 dev = ["pytest>=8"]
 
 [project.urls]
-Homepage = "https://github.com/qbong1010/LunarGanZhiCalculator"
-Repository = "https://github.com/qbong1010/LunarGanZhiCalculator"
-Issues = "https://github.com/qbong1010/LunarGanZhiCalculator/issues"
+Homepage = "https://github.com/qbong1010/ssod-saju-engine"
+Repository = "https://github.com/qbong1010/ssod-saju-engine"
+Issues = "https://github.com/qbong1010/ssod-saju-engine/issues"
 
 # saju 패키지(import 이름)만 배포. 참조 API 서버(server/)와 tests/ 는 제외.
 [tool.setuptools]

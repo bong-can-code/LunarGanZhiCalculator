@@ -17,7 +17,7 @@
 ```bash
 pip install ssod-saju-engine        # (PyPI 배포 후)
 # 또는 개발 중:
-pip install git+https://github.com/qbong1010/LunarGanZhiCalculator.git
+pip install git+https://github.com/qbong1010/ssod-saju-engine.git
 ```
 
 의존성은 `korean-lunar-calendar`(음↔양력 변환, MIT) 하나뿐입니다.
