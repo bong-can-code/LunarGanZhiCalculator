@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ssod-saju-engine"
+version = "0.1.0"
+description = "한국 사주(四柱) 간지·명리 계산 엔진 — 양/음력, 대운/세운, 십성·12운성·12신살·공망·궁합"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Joey", email = "jqb9510@gmail.com" }]
+keywords = ["saju", "manseryeok", "bazi", "ganzhi", "사주", "만세력", "명리", "궁합"]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+    "Natural Language :: Korean",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = ["korean-lunar-calendar>=0.4"]
+
+[project.optional-dependencies]
+server = ["fastapi>=0.110", "uvicorn>=0.29"]
+dev = ["pytest>=8"]
+
+[project.urls]
+Homepage = "https://github.com/qbong1010/LunarGanZhiCalculator"
+Repository = "https://github.com/qbong1010/LunarGanZhiCalculator"
+Issues = "https://github.com/qbong1010/LunarGanZhiCalculator/issues"
+
+# saju 패키지(import 이름)만 배포. 참조 API 서버(server/)와 tests/ 는 제외.
+[tool.setuptools]
+packages = ["saju"]

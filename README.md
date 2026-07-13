@@ -1,132 +1,117 @@
-# LunarGanZhiCalculator
+# ssod-saju-engine (소디사주엔진)
 
-생년월일시를 입력받아 사주(四柱) 간지(干支)를 계산하는 Flask 웹 애플리케이션입니다. 양력/음력 입력을 모두 지원하며, 연·월·일·시 4주의 간지를 계산해 보여줍니다.
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 
-## 🚀 주요 기능
+생년월일시를 입력받아 **사주(四柱) 간지(干支)와 명리(命理) 지표를 계산하는
+순수 Python 엔진**입니다. 양력/음력 입력을 모두 지원하며, 연·월·일·시 4주의
+간지, 대운/세운, 십성·12운성·12신살·공망·신살/길성·합충형파해·오행 통계·궁합까지
+계산합니다. UI·웹 프레임워크 의존성이 없어 라이브러리로 임베드하거나
+동봉된 참조 HTTP API 서버로 띄워 언어 무관하게 사용할 수 있습니다.
 
-- **양력/음력 입력 지원**: 음력으로 입력하면 `korean-lunar-calendar` 라이브러리로 양력으로 변환한 뒤 계산합니다(윤달 지원).
-- **사주 4주 계산**: 연주·월주·일주·시주의 천간지지를 오행 색상 타일로 표시합니다.
-- **지장간·납음오행**: 각 기둥의 지지에 담긴 지장간과 60갑자 납음오행을 함께 보여줍니다.
-- **오행 개수 통계**: 4주 8글자(시간 모름이면 6글자) 중 목·화·토·금·수 개수를 집계합니다.
-- **대운(大運)**: 성별과 연간(年干) 음양으로 순행/역행을 정하고, 대운수·10년 주기 간지를 계산합니다.
-- **세운(歲運, 년운)**: 현재 연도를 중심으로 앞뒤 4년씩 연주를 보여줍니다.
-- **시간 모름 처리**: 태어난 시간을 모르면 시주를 생략할 수 있습니다.
-- **입력 검증**: 존재하지 않는 날짜 등 잘못된 입력은 에러 메시지로 안내합니다.
-- **명리 분석 엔진**: 십성(십신)·12운성·12신살·공망·신살/길성(천을귀인 등 10종)·
-  합충형파해·오행%·신강신약(간이 판정)을 계산합니다
-  (규칙 상세: [plan/active/05-saju-analysis-engine.md](plan/active/05-saju-analysis-engine.md),
-  전문가 검수용 요약: [docs/expert-review/saju-analysis-rules.md](docs/expert-review/saju-analysis-rules.md)).
+> 이 레포는 **계산 엔진(오픈소스)** 입니다. 웹 UI·콘텐츠·수익화 등 서비스 레이어는
+> 별도 비공개 레포에서 이 엔진을 의존해 구성합니다.
 
-### 💕 사주 궁합 데이트 (`/gunghap`)
+## 설치
 
-- **연인 모드(2인) · 친구 모드(2~4인)**: 연인은 정통 궁합 엔진을, 친구는 모든 짝(pairwise)의
-  궁합 점수를 평균 내는 팀 궁합 엔진을 씁니다
-  (구현: [saju/compat.py](saju/compat.py) `couple_compat`/`team_compat`).
-- **궁합 점수(0~100)**: 일간 천간합, 일지·띠의 육합/삼합/충/원진, 오행 상호보완을 점수화합니다
-  (규칙 상세: [plan/done/DESIGN_GUNGHAP.md](plan/done/DESIGN_GUNGHAP.md)).
-- **일간 관계(生·比·剋)**: 두 사람(또는 팀)의 일간 오행이 상생·비화·상극 중 무엇인지 별도로
-  보여줍니다 (`day_stem_pair_relation`).
-- **지금 흐르는 기운(대운·세운·월운)**: 나의 현재 대운, 올해 세운, 이번 달 월운 간지를 함께
-  보여줍니다 ([saju/luck.py](saju/luck.py) `current_luck_snapshot`).
-- **이 달의 데이트 동네 추천**: 이번 달 월운 오행 → 서울 트렌디 동네 1곳(연남동/경리단길/
-  북촌삼청동/한남동/성수동)을 추천하고, 카카오 로컬 API로 실시간 맛집·카페를 보여줍니다
-  ([saju/date_neighborhoods.py](saju/date_neighborhoods.py)). 프로젝트 루트의 `data.env`
-  파일(git 미추적)에 `KAKAO_REST_API_KEY=발급받은키`를 넣거나 환경변수로 설정하세요.
-  키가 없으면 동네별 대표 명소(공개 정보)로 대체됩니다.
-- **단계적 장소 공개**: 첫 번째 장소는 바로 보이고, 나머지는 공유 후 열리는 바이럴 유도
-  UI입니다 (실제 공유 이미지 생성은 준비 중).
+```bash
+pip install ssod-saju-engine        # (PyPI 배포 후)
+# 또는 개발 중:
+pip install git+https://github.com/qbong1010/LunarGanZhiCalculator.git
+```
+
+의존성은 `korean-lunar-calendar`(음↔양력 변환, MIT) 하나뿐입니다.
+
+## 사용법
+
+```python
+from saju import calculate_saju
+
+result = calculate_saju(
+    1990, 5, 15, hour=14,        # 양력 1990-05-15 14시
+    is_lunar=False,              # 음력이면 True (윤달은 is_leap_month=True)
+    gender="male",               # 주어지면 대운(순행/역행·대운수)도 계산
+)
+
+print(result["pillars"]["day"]["korean"])   # 일주 간지 (예: '경오')
+print(result["day_master"])                 # 일간(오행·음양)
+print(result["elements"])                   # 오행 개수 통계
+print(result["analysis"]["strength"])       # 신강신약(참고용 간이 점수)
+print(result["daewoon"])                    # 대운 리스트
+```
+
+반환 dict의 최상위 키: `solar`, `lunar`, `pillars`, `elements`, `daewoon`,
+`seun`, `day_master`, `gongmang`, `gilseong`, `relations`, `analysis`.
+
+### 궁합
+
+```python
+from saju import calculate_saju
+from saju.compat import couple_compat, team_compat
+
+a = calculate_saju(1990, 5, 15, 14, gender="male")
+b = calculate_saju(1992, 8, 3, 9, gender="female")
+print(couple_compat(a, b))          # 2인 궁합 점수·등급·요인
+print(team_compat([a, b, ...]))     # 3~4인 팀 궁합
+```
+
+## 참조 HTTP API 서버
+
+`server/`에 엔진을 그대로 노출하는 얇은 FastAPI 래퍼가 있습니다(OpenAPI 문서 자동 생성).
+
+```bash
+pip install "ssod-saju-engine[server]"
+uvicorn server.main:app --reload      # http://127.0.0.1:8000/docs
+```
 
 ## 📐 계산 기준 (정확도 근거)
 
-이 계산기는 정통 명리학 기준을 따릅니다 ([saju/pillars.py](saju/pillars.py) 참고):
+정통 명리학 기준을 따릅니다 ([saju/pillars.py](saju/pillars.py)).
 
 | 기둥 | 기준 |
 |------|------|
-| 연주(年柱) | **입춘(立春)** 절입시각을 연 경계로 삼습니다. 입춘 이전 출생은 전년도 간지를 씁니다. |
-| 월주(月柱) | 음력 월이 아니라 **12절(節)** 로 월 경계를 잡고, 연간(年干)에 **오호둔(五虎遁)** 규칙을 적용해 월간을 정합니다. |
-| 일주(日柱) | 60갑자 순환. `korean-lunar-calendar`(KASI 표준)가 계산한 일간지를 외부 앵커(1949-10-01, 2024-01-01 갑자일)로 교차검증했습니다. |
-| 시주(時柱) | **정자시(23:00 날짜 전환)** 기준. 일간(日干)에 **오서둔(五鼠遁)** 규칙을 적용합니다. |
+| 연주(年柱) | **입춘(立春)** 절입시각을 연 경계로 삼습니다. 입춘 이전 출생은 전년도 간지. |
+| 월주(月柱) | 음력 월이 아니라 **12절(節)** 로 월 경계를 잡고, 연간에 **오호둔(五虎遁)** 적용. |
+| 일주(日柱) | 60갑자 순환. `korean-lunar-calendar`(KASI 표준)의 일간지를 외부 앵커(1949-10-01, 2024-01-01 갑자일)로 교차검증. |
+| 시주(時柱) | **정자시(23:00 날짜 전환)** 기준, 일간에 **오서둔(五鼠遁)** 적용. |
 
 대운·세운은 [saju/luck.py](saju/luck.py)에서 계산합니다:
 
 | 항목 | 기준 |
 |------|------|
-| 순행/역행 | 연간(年干)의 음양과 성별 조합. 양간+남자 또는 음간+여자 → 순행, 그 반대는 역행. |
-| 대운수 | 태어난 시각으로부터 다음 절(순행) 또는 직전 절(역행)까지의 일수를 3으로 나눈 값("3일=1년" 통상 규칙, 최소 1). |
-| 대운 간지 | 월주를 기준으로 순행이면 다음 갑자, 역행이면 이전 갑자로 10년마다 진행. |
-| 세운 | 절기와 무관하게 그 해의 대표 시점(6월 1일)으로 계산한 연주. 서버의 현재 연도를 중심으로 앞뒤 4년씩 표시. |
+| 순행/역행 | 연간의 음양 × 성별. 양간+남자 또는 음간+여자 → 순행, 반대는 역행. |
+| 대운수 | 다음 절(순행)/직전 절(역행)까지 일수를 3으로 나눔("3일=1년", 최소 1). |
+| 대운 간지 | 월주 기준 순행이면 다음 갑자, 역행이면 이전 갑자로 10년마다 진행. |
+| 세운 | 그 해 대표 시점(6월 1일)의 연주. 현재 연도 중심 앞뒤 4년. |
 
-### 🧮 명리 분석 계산 기준 (십성·12운성·12신살·신강신약 등)
+### 🧮 명리 분석 기준 (십성·12운성·12신살·신강신약 등)
 
-명리 분석 엔진(`saju/sipseong.py`, `saju/unseong.py`, `saju/sinsal.py`,
-`saju/relations.py`, `saju/strength.py`)이 채택한 기준입니다. 상세 근거·룰 테이블은
-[plan/active/05-saju-analysis-engine.md](plan/active/05-saju-analysis-engine.md) §6,
-전문가 검수용 요약은 [docs/expert-review/saju-analysis-rules.md](docs/expert-review/saju-analysis-rules.md)를 참고하세요.
+상세 룰 테이블은 [plan/active/05-saju-analysis-engine.md](plan/active/05-saju-analysis-engine.md) §6,
+전문가 검수용 요약은 [docs/expert-review/saju-analysis-rules.md](docs/expert-review/saju-analysis-rules.md) 참고.
 
 | 항목 | 기준 |
 |------|------|
-| 십성(十星) | 일간과 대상 오행의 생극 관계 × 음양 일치 여부. 지지 십성은 지장간 **본기**(정기) 기준. |
-| 12운성 | **양생음사**(陽生陰死): 양간 순행, 음간 역행. 화토동법(무=인, 기=유). |
-| 12신살 | 원국표는 **년지** 기준 고정, 대운·세운도 동일. 삼합국 기준 겁살부터 순환. |
-| 공망(空亡) | 일주의 순중공망(旬中空亡) — 60갑자 순(旬)에서 비는 지지 2개. |
-| 신강신약 | **참고용 간이 점수제**(월지 3.0·일지 1.5 가중). 격국·조후를 반영하는 정통 판정과 다를 수 있습니다. |
+| 십성(十星) | 일간과 대상 오행의 생극 × 음양 일치. 지지 십성은 지장간 **본기**(정기) 기준. |
+| 12운성 | **양생음사**(양간 순행·음간 역행), 화토동법(무=인, 기=유). |
+| 12신살 | 원국·대운·세운 모두 **년지** 기준, 삼합국 겁살부터 순환. |
+| 공망(空亡) | 일주의 순중공망 — 60갑자 순에서 비는 지지 2개. |
+| 신강신약 | **참고용 간이 점수제**(월지 3.0·일지 1.5 가중). 격국·조후 반영 정통 판정과 다를 수 있음. |
 
 ### ⚠️ 제한 사항
 
-- **야자시/조자시 미채택**: 23시 이후 출생을 다음날로 보는 정자시설을 채택했습니다. 야자시(23~24시는 당일, 0~1시만 다음날)를 쓰는 유파와는 결과가 다를 수 있습니다.
-- **절기 시각 계산**: 절기 절입시각은 [saju/solar_terms.py](saju/solar_terms.py)의 천문 계산식을 사용하며, 연도별로 몇 분 단위 오차가 있을 수 있습니다.
-- **대운수 반올림**: 일수/3 계산에 파이썬 기본 반올림(banker's rounding)을 사용합니다. 만세력 앱마다 올림/반올림 기준이 달라 경계값에서 ±1세 차이가 날 수 있습니다.
-- **신강신약은 참고용**: §🧮 표 참고 — 전문가 검수 전까지 확정된 판정으로 안내하지 않습니다.
-- **사주 해석 없음**: 간지·오행 통계·명리 지표 계산까지만 제공하며, 용신·격국 등 심층 해석은 범위 밖입니다.
+- **야자시/조자시 미채택**: 23시 이후를 다음날로 보는 정자시설 채택. 야자시 유파와 다를 수 있음.
+- **절기 시각**: [saju/solar_terms.py](saju/solar_terms.py) 천문 계산식 사용, 연도별 분 단위 오차 가능.
+- **대운수 반올림**: 파이썬 기본 반올림(banker's rounding). 경계값에서 ±1세 차이 가능.
+- **신강신약은 참고용**, **사주 해석 없음**: 간지·오행 통계·명리 지표까지만. 용신·격국 등 심층 해석은 범위 밖.
 
-## 📥 설치 방법
-
-### 필요 조건
-
-- Python 3.10+
-- `pip` 패키지 관리자
-
-### 설치 단계
+## 개발
 
 ```bash
-git clone https://github.com/qbong1010/LunarGanZhiCalculator.git
-cd LunarGanZhiCalculator
-
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
-
-pip install -r requirements.txt
+pip install -e ".[dev]"
+pytest
 ```
 
-테스트를 실행하려면 개발용 의존성(pytest 포함)을 설치하세요:
+## 라이선스
 
-```bash
-pip install -r requirements-dev.txt
-```
-
-## 📖 사용 방법
-
-1. Flask 애플리케이션 실행
-
-   ```bash
-   python app.py
-   ```
-
-2. 웹 브라우저에서 `http://localhost:5000` 접속
-3. 성별, 양력/음력, 생년월일시를 입력한 뒤 "제출" 클릭
-4. 4주 간지·지장간·납음오행·오행 통계·대운·세운이 표시됩니다
-
-## 🧪 테스트
-
-```bash
-pytest tests/
-```
-
-- `tests/test_saju.py`: 외부 권위 출처(위키백과 육십갑자, KASI 표준)로 교차검증한 일주 앵커와 입춘 경계, 정자시 날짜 전환, 음력 입력 변환, 잘못된 입력 처리 등을 검증합니다.
-- `tests/test_extras.py`: 지장간·납음오행·오행 통계·대운 순행역행·세운 계산을 실제 만세력 앱 스크린샷 값과 대조해 검증합니다.
-- `tests/test_compat.py`: 궁합 로직(육합/삼합/충/원진/천간합 판정, 점수 범위, 보완 오행→지역 추천, 띠 추출)을 갑자일 앵커 기반으로 검증합니다.
-- `tests/test_analysis.py`: 십성·12운성·12신살·공망·신살/길성·오행%·신강신약을 실제 만세력 앱 스크린샷(골든 케이스: 1995-10-10 13시생)과 대조해 검증합니다.
-
-## 📄 라이선스
-
-개인 취미 프로젝트로, 별도의 라이선스 파일은 아직 없습니다.
+[Apache License 2.0](LICENSE). 자유롭게 사용·수정·재배포·상업적 이용이 가능하며,
+변경 사항 고지와 라이선스·저작권 표기 유지 의무가 있습니다.

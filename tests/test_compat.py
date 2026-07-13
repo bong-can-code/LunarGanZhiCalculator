@@ -13,7 +13,6 @@ from saju.compat import (
     team_compat,
     zodiac_of,
 )
-from saju.date_neighborhoods import NEIGHBORHOODS, neighborhood_of
 from saju.gapja import EARTHLY_BRANCHES, HEAVENLY_STEMS
 from saju.luck import current_luck_snapshot
 
@@ -150,18 +149,3 @@ def test_current_luck_snapshot_matches_direct_calculation():
     assert snap["seun"]["hanja"] == yp["hanja"]
     assert snap["wolun"]["hanja"] == mp["hanja"]
     assert "branch_element" in snap["wolun"]
-
-
-# ── 이 달의 데이트 동네 (오행 → 동네 1곳 + 폴백 장소) ──────────────
-def test_neighborhood_of_covers_all_elements():
-    for element in ("목", "화", "토", "금", "수"):
-        nbh = neighborhood_of(element)
-        assert nbh["element"] == element
-        assert nbh["name"] and nbh["tag"] and nbh["why"]
-        assert len(nbh["places"]) >= 1
-        for place in nbh["places"]:
-            assert place["name"] and place["category"] and place["address"]
-
-
-def test_neighborhoods_have_exactly_five_elements():
-    assert set(NEIGHBORHOODS.keys()) == {"목", "화", "토", "금", "수"}
